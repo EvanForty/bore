@@ -1,0 +1,1317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bore: bore deeper, build tunnels, extract fees</title>
+<meta name="description" content="Bore is a Solana launchpad of autonomous tunnel boring machine NFTs. Every tunnel is a coin launched on pump.fun and a tradable Tunnel NFT that earns royalties.">
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/logo.png">
+<meta name="theme-color" content="#3A2213">
+<meta property="og:title" content="Bore: bore deeper, build tunnels, extract fees">
+<meta property="og:description" content="A Solana launchpad of autonomous tunnel boring machines. Every tunnel is a coin on pump.fun and a Tunnel NFT that earns royalties.">
+<meta property="og:image" content="/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Stencil+One&family=Saira+Condensed:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+<style>
+:root{
+  --bg:#F4ECE2;--panel:#FFFBF6;--ink:#2B180B;--soft:#5C3D25;--mute:#8E6E52;--rule:#E3D3C1;--edge:#2B180B;--frame:#2B180B;
+  --or:#F28C00;--or-ink:#9E5600;--s1:#D9C2A5;--s2:#C3A684;--s3:#A88763;--shaft:#2B180B;--dead:#8E6E52;
+  --grid:rgba(43,24,11,.045);--stripe:rgba(43,24,11,.035);
+  --f-stencil:'Saira Stencil One','Arial Black',Impact,sans-serif;
+  --f-head:'Saira Condensed','Arial Narrow',sans-serif;
+  --f-ui:'Work Sans',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#3A2213;--panel:#47291A;--ink:#FFF4E6;--soft:#E6CFB4;--mute:#B4916F;--rule:#664129;--edge:#FFF4E6;--frame:#7A5236;
+    --or:#FF9F1A;--or-ink:#FFB547;--s1:#5C3820;--s2:#4C2D19;--s3:#3A2112;--shaft:#E9DCCB;--dead:#7E5A3E;
+    --grid:rgba(255,255,255,.03);--stripe:rgba(255,255,255,.04);color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#3A2213;--panel:#47291A;--ink:#FFF4E6;--soft:#E6CFB4;--mute:#B4916F;--rule:#664129;--edge:#FFF4E6;--frame:#7A5236;
+  --or:#FF9F1A;--or-ink:#FFB547;--s1:#5C3820;--s2:#4C2D19;--s3:#3A2112;--shaft:#E9DCCB;--dead:#7E5A3E;
+  --grid:rgba(255,255,255,.03);--stripe:rgba(255,255,255,.04);color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background-color:var(--bg);color:var(--ink);font:400 15.5px/1.55 var(--f-ui);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:30px 30px;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px dashed var(--or-ink);outline-offset:3px}
+.wrap{max-width:1420px;margin:0 auto;padding:16px}
+.panel{background:var(--panel);border:1.5px solid var(--frame)}
+.ph{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0;padding:13px 18px;border-bottom:1px solid var(--rule);font:600 12px/1.2 var(--f-mono);letter-spacing:.07em;text-transform:uppercase}
+.ph small{font-weight:400;color:var(--mute);letter-spacing:.04em}
+.ph .pix{height:18px;width:auto} .ph .art{width:34px}
+.ph .end{margin-left:auto}
+.pad{padding:18px}
+.tag{display:inline-block;font:600 11px/1 var(--f-mono);letter-spacing:.05em;padding:5px 7px;background:var(--ink);color:var(--bg);text-transform:uppercase}
+.tag.or{background:var(--or);color:#2B180B}
+.tag.ghost{background:transparent;color:var(--soft);border:1px solid var(--rule)}
+.pix rect{fill:var(--ink)} .pix .o{fill:var(--or)}
+.small{font-size:13px;color:var(--soft)}
+.warn{color:#B42318}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .warn{color:#FFA08F}}
+:root[data-theme="dark"] .warn{color:#FFA08F}
+.art{display:block;aspect-ratio:169 / 93;background-size:contain;background-repeat:no-repeat;background-position:center;image-rendering:pixelated}
+
+/* header */
+.top{margin-bottom:16px}
+.nav{display:grid;grid-template-columns:auto 1fr auto}
+.brand{display:flex;align-items:center;gap:12px;padding:10px 20px;border-right:1px solid var(--rule);text-decoration:none}
+.brand .art{width:80px;flex:none}
+.brand b{display:block;font:400 32px/.9 var(--f-stencil);letter-spacing:.04em;text-transform:uppercase}
+.brand small{display:block;margin-top:6px;font:500 11px/1 var(--f-mono);color:var(--mute);letter-spacing:.05em}
+.tabs{display:grid;grid-template-columns:repeat(8,minmax(92px,1fr));overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:15px 8px 12px;border-right:1px solid var(--rule);text-decoration:none;color:var(--soft);font:500 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.tabs a em{position:absolute;top:7px;right:8px;font-style:normal;color:var(--mute);font-size:10px}
+.tabs a .pix{height:22px;width:auto} .tabs a .art{width:40px}
+.tabs a:hover{background:var(--stripe)}
+.tabs a[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -4px 0 var(--or)}
+.walletcell{position:relative;display:flex;align-items:center;padding:12px 18px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font:700 14px/1.2 var(--f-ui);border:1.5px solid var(--edge);background:var(--panel);color:var(--ink);padding:12px 16px;cursor:pointer;box-shadow:3px 3px 0 var(--edge);text-decoration:none;white-space:nowrap}
+.btn:active:not([disabled]){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--edge)}
+.btn.or{background:var(--or);color:#2B180B;border-color:#2B180B}
+.btn.dark{background:var(--ink);color:var(--bg)}
+.btn.sm{padding:8px 11px;font-size:12.5px;box-shadow:2px 2px 0 var(--edge)}
+.btn.wide{width:100%;padding:19px;font-size:16px}
+.btn[disabled]{opacity:.4;cursor:not-allowed;box-shadow:none}
+.btn .dot{width:9px;height:9px;background:#2B180B;display:inline-block}
+.btn.connected .dot{background:var(--or);outline:1.5px solid var(--edge)}
+.chip{font:600 11px/1 var(--f-mono);letter-spacing:.03em;border:1.5px solid var(--edge);background:var(--panel);padding:7px 10px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--or);color:#2B180B;border-color:#2B180B}
+.link{font:700 13px/1 var(--f-ui);border:0;background:none;padding:3px 0;border-bottom:3px solid var(--or);cursor:pointer;text-decoration:none}
+
+/* site */
+.grid-hero{display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);gap:16px;align-items:start}
+.col{display:grid;gap:16px;align-content:start;min-width:0}
+label,.lbl{display:block;font:500 11px/1.2 var(--f-mono);color:var(--soft);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
+.big{display:flex;align-items:baseline;gap:10px;margin:14px 0 6px}
+.big b{font:400 100px/.85 var(--f-stencil)}
+.big span{font:600 30px var(--f-head);color:var(--mute)}
+.ticks{display:flex;gap:2px;height:16px;margin:6px 0 18px}
+.ticks i{flex:1;background:var(--rule)} .ticks i.on{background:var(--ink)} .ticks i.last{background:var(--or)}
+.kv4{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule);margin-bottom:18px}
+.kv4>div{padding:12px 14px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.kv4>div:nth-child(2n){border-right:0}
+.kv4>div:nth-last-child(-n+2){border-bottom:0}
+.kv4 b{font:500 17px/1.2 var(--f-mono)}
+.hero-copy{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:end;padding:28px 28px 8px}
+h1{font:400 clamp(36px,4.6vw,66px)/.95 var(--f-stencil);text-transform:uppercase;margin:0}
+h1 em{font-style:normal;color:var(--or-ink)}
+.hero-copy p{font-size:16.5px;color:var(--soft);margin:0}
+.mapwrap{padding:14px 18px 0}
+.map{display:block;width:100%;height:auto}
+.map .s1{fill:var(--s1)} .map .s2{fill:var(--s2)} .map .s3{fill:var(--s3)}
+.map .grass{fill:var(--or)} .map .shaft{fill:var(--shaft)}
+.map .hubt{font:600 4px var(--f-mono);fill:var(--bg)} .map .hubb{fill:var(--shaft)}
+.map .t-live{fill:var(--or)} .map .t-dead{fill:var(--dead)} .map .c-grad{fill:#FFFFFF;stroke:var(--or);stroke-width:.6}
+.map .trunk{fill:var(--or);opacity:.35}
+.map .bore{animation:bore 1.6s steps(4) infinite}
+@keyframes bore{50%{transform:translateX(.6px)}}
+.map rect{cursor:help}
+.legend{display:flex;flex-wrap:wrap;gap:8px 22px;padding:14px 20px 18px;font:500 12.5px var(--f-mono);color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:14px;height:6px;display:inline-block}
+.kv2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.kv2>div{padding:14px 18px}
+.kv2>div+div{border-left:1px solid var(--rule)}
+.kv2 b{font:400 24px/1.1 var(--f-stencil);text-transform:uppercase;overflow-wrap:anywhere}
+.btnrow{display:flex;gap:12px;padding:18px;border-top:1px solid var(--rule)}
+.btnrow .btn{flex:1}
+.feed{display:grid;grid-template-columns:repeat(6,1fr)}
+.feed>div{padding:18px 14px;text-align:center;border-right:1px solid var(--rule)}
+.feed>div:last-child{border-right:0}
+.feed .tbm{width:118px;margin:0 auto 10px}
+.feed b{display:block;font:700 22px var(--f-head)}
+.feed p{margin:2px 0 6px;font-size:13px;color:var(--soft);line-height:1.35}
+.ago{font:500 11px var(--f-mono);color:var(--mute);letter-spacing:.04em;text-transform:uppercase}
+.empty{padding:28px 20px;color:var(--soft);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.empty .art{width:84px}
+.steps{display:grid;grid-template-columns:repeat(5,1fr)}
+.steps>div{padding:20px 18px 24px;border-right:1px solid var(--rule)}
+.steps>div:last-child{border-right:0}
+.steps .pix{height:34px;width:auto;margin-bottom:14px} .steps .art{width:64px;margin-bottom:12px}
+.steps .n{display:block;font:500 12px var(--f-mono);color:var(--or-ink);margin-bottom:6px}
+.steps h3{margin:0 0 6px;font:700 23px/1.05 var(--f-head);text-transform:uppercase}
+.steps p{margin:0;color:var(--soft);font-size:14.5px}
+.mt{margin-top:16px}
+
+/* tbm card */
+.tbm{display:block}
+.tbm.idle .art{filter:grayscale(.9);opacity:.6}
+.tbm .tb{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:6px}
+.tbm .tb i{height:4px;background:var(--rule)} .tbm .tb i.on{background:var(--or)}
+.tbm .lv{display:flex;gap:3px;justify-content:center;margin-top:4px;min-height:5px}
+.tbm .lv i{width:5px;height:5px;background:var(--or)}
+
+/* deploy */
+.grid-2{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
+.step h3{font:700 30px/1.05 var(--f-head);text-transform:uppercase;margin:0 0 8px}
+.step p{margin:0 0 16px;color:var(--soft);max-width:68ch}
+.opts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.opt{text-align:left;border:1.5px solid var(--edge);background:var(--panel);padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.opt[aria-pressed="true"]{box-shadow:inset 0 0 0 3px var(--or),4px 4px 0 var(--edge)}
+.opt b{font:700 22px/1.05 var(--f-head);text-transform:uppercase;margin-top:8px}
+.opt>span{color:var(--soft);font-size:14px}
+.opt dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:12px 0 0;font:500 12px var(--f-mono)}
+.opt dt{color:var(--mute)} .opt dd{margin:0;text-align:right}
+.bores{display:flex;gap:2px;height:12px;align-items:flex-end}
+.bores i{width:5px;height:12px;background:var(--or)}
+.note{font-size:13.5px;color:var(--soft);margin:14px 0 0;padding-left:12px;border-left:3px solid var(--or)}
+.youget{display:flex;gap:18px;align-items:center;padding:18px}
+.youget .frame{border:1px solid var(--rule);padding:10px;width:170px;flex:none}
+.youget b{display:block;font:400 42px/1 var(--f-stencil)}
+.youget span{color:var(--soft);font-size:14px}
+.rows>div{display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:14px 18px;border-bottom:1px solid var(--rule)}
+.rows>div:last-child{border-bottom:0}
+.rows label{margin:0}
+.rows b{font:500 15px var(--f-mono);text-align:right}
+
+/* lists */
+.filters{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;padding:16px 18px}
+.seg{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.seg>span{font:500 11px var(--f-mono);color:var(--mute);letter-spacing:.05em;text-transform:uppercase;margin-right:4px}
+.lists{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+.lcard{display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;padding:16px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.lcard h4{margin:0 0 6px;font:700 26px/1 var(--f-head);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lcard dl,.tcard dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0 0 12px;font:500 11.5px var(--f-mono)}
+.lcard dt,.tcard dt{color:var(--mute)} .lcard dd,.tcard dd{margin:0;text-align:right}
+.lcard .btn{width:100%;white-space:normal;text-align:center}
+.auc{display:grid;grid-template-columns:200px minmax(0,1fr) auto;gap:22px;align-items:center;padding:20px}
+.auc h4{margin:0 0 4px;font:700 30px/1 var(--f-head)}
+.bid{font:400 40px/1 var(--f-stencil);margin:4px 0}
+.bid small{font:500 13px var(--f-mono);color:var(--soft)}
+.tcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.tcard{padding:16px 18px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);display:flex;flex-direction:column}
+.tcard h4{margin:0 0 8px;font:700 28px/1 var(--f-head);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tcard .tg{display:block;width:100%;height:auto;margin:0 0 12px}
+.tcard .btns{margin-top:auto}
+.tg .s1{fill:var(--s1)} .tg .s2{fill:var(--s2)} .tg .t-live{fill:var(--or)} .tg .t-dead{fill:var(--dead)} .tg .shaft{fill:var(--shaft)}
+.nets{display:grid;grid-template-columns:repeat(4,1fr)}
+.net{padding:18px;border-right:1px solid var(--rule)}
+.net:last-child{border-right:0}
+.net h3{margin:0 0 4px;font:400 34px/1 var(--f-stencil)}
+.net .stats{grid-template-columns:1fr}
+
+/* tbms */
+.kv5{display:grid;grid-template-columns:repeat(5,1fr)}
+.kv5>div{padding:16px 18px;border-right:1px solid var(--rule)}
+.kv5>div:last-child{border-right:0}
+.kv5 b{display:block;font:500 21px/1.2 var(--f-mono)}
+.kv5 b.g{color:var(--or-ink)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;padding:18px;border-top:1px solid var(--rule)}
+.trow{display:grid;grid-template-columns:190px minmax(0,1fr) minmax(0,1.15fr);border-top:1px solid var(--rule)}
+.trow:first-of-type{border-top:0}
+.trow>div{padding:18px}
+.trow>div+div{border-left:1px solid var(--rule)}
+.trow h3{margin:0 0 8px;font:400 34px/1 var(--f-stencil);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;margin:10px 0 14px}
+.stats b{display:block;font:500 15px var(--f-mono)}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.up{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--rule)}
+.up:last-child{border-bottom:0}
+.up b{font:700 14.5px var(--f-ui)}
+.up small{grid-column:1;font-size:12.5px;color:var(--soft)}
+.up .btn{grid-row:1 / span 2;grid-column:2}
+.pips{display:inline-flex;gap:3px;margin-left:8px;vertical-align:1px}
+.pips i{width:9px;height:9px;border:1px solid var(--edge);display:inline-block}
+.pips i.on{background:var(--or)}
+.rentbox{border:1px solid var(--rule);padding:12px 14px;margin-bottom:12px;background:var(--stripe)}
+.rentbox b{display:block;font:700 14.5px var(--f-ui);margin-bottom:2px}
+.rentbox p{margin:0 0 10px;font-size:13px;color:var(--soft)}
+
+/* how */
+.split{padding:22px 22px 6px}
+.squares{display:grid;grid-template-columns:repeat(50,1fr);gap:2px}
+.squares i{aspect-ratio:1;display:block}
+.sq-a{background:var(--or)} .sq-r{background:var(--or-ink);opacity:.55} .sq-b{background:var(--ink)} .sq-c{background:var(--mute);opacity:.5}
+.splitkeys{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule);margin-top:18px}
+.splitkeys>div{padding:16px 22px;border-right:1px solid var(--rule)}
+.splitkeys>div:last-child{border-right:0}
+.splitkeys .k{display:flex;gap:8px;align-items:center;font:700 15px var(--f-ui)}
+.splitkeys .k i{width:13px;height:13px;display:inline-block}
+.splitkeys b{display:block;font:400 52px/1 var(--f-stencil);margin:8px 0 4px}
+.splitkeys p{margin:0;color:var(--soft);font-size:14px}
+.fly{padding:10px 18px 18px}
+.fly svg{display:block;width:100%;height:auto;max-width:900px;margin:0 auto}
+.fly .ringe{fill:none;stroke:var(--mute);stroke-width:1.5;stroke-dasharray:5 5}
+.fly .node rect{fill:var(--panel);stroke:var(--edge);stroke-width:1.5}
+.fly .node.hot rect{fill:var(--or);stroke:#2B180B}
+.fly .node text{font:600 13px var(--f-ui);fill:var(--ink)}
+.fly .node.hot text{fill:#2B180B}
+.fly .arr{fill:var(--mute)}
+.fly ol{display:none;margin:0;padding:0 0 0 22px}
+.fly ol li{padding:6px 0;font-weight:600}
+.pbody{padding:18px 22px}
+.pbody p{margin:0 0 10px;color:var(--soft)}
+.pbody p:last-child{margin:0}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{font:500 11px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--soft);text-align:left;padding:10px 14px;border-bottom:1px solid var(--rule);background:var(--stripe)}
+td{padding:12px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right;font-family:var(--f-mono)}
+.tw{overflow-x:auto}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+
+/* docs */
+.docs{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.toc ol{list-style:none;margin:0;padding:8px 18px 14px}
+.toc li button{display:flex;gap:14px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:10px 0;cursor:pointer;font-size:14.5px}
+.toc li button span{font:500 11px var(--f-mono);color:var(--mute);padding-top:3px}
+.doc{scroll-margin-top:16px}
+.doc .body{padding:20px 24px 24px;max-width:80ch}
+.doc .body p,.doc .body li{color:var(--soft)}
+.doc .body strong{color:var(--ink)}
+.doc .body h4{font:700 21px var(--f-head);text-transform:uppercase;margin:20px 0 6px}
+.doc code{font:500 12.5px var(--f-mono);background:var(--stripe);padding:2px 5px}
+.doc .tw{margin:12px 0;border:1px solid var(--rule)}
+details{border-bottom:1px solid var(--rule)}
+details summary{cursor:pointer;padding:13px 0;font-weight:700;list-style:none}
+details summary::before{content:"▸";display:inline-block;width:18px;font-size:12px}
+details[open] summary::before{content:"▾"}
+details p{margin:0 0 14px 18px}
+
+/* overlays */
+.scrim{position:fixed;inset:0;background:rgba(30,16,6,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{max-width:640px;width:100%;max-height:calc(100% - 32px);overflow:auto;box-shadow:6px 6px 0 var(--or)}
+.modal.wide{max-width:880px}
+.x{margin-left:auto;background:none;border:0;font:700 18px var(--f-mono);cursor:pointer;padding:0 4px}
+.wlist{display:grid;gap:10px;padding:18px}
+.wopt{display:flex;align-items:center;gap:14px;border:1.5px solid var(--edge);background:var(--panel);padding:12px 14px;cursor:pointer;text-align:left;font:700 15px var(--f-ui);text-decoration:none}
+.wopt img,.wopt .ph-ico{width:28px;height:28px;flex:none}
+.wopt .ph-ico{background:var(--mute)}
+.wopt em{margin-left:auto;font:500 11px var(--f-mono);font-style:normal;color:var(--or-ink);text-transform:uppercase;letter-spacing:.05em}
+.wopt:hover{background:var(--stripe)}
+.menu{position:absolute;right:18px;top:calc(100% - 4px);z-index:40;min-width:260px;box-shadow:4px 4px 0 var(--or)}
+.menu .rows>div{padding:12px 16px}
+.mitems{display:grid;border-top:1px solid var(--rule)}
+.mitems button,.mitems a{text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:12px 16px;cursor:pointer;font:600 14px var(--f-ui);text-decoration:none}
+.mitems>*:last-child{border-bottom:0}
+.toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));display:grid;gap:8px;z-index:60;max-width:min(380px,calc(100% - 32px))}
+.toast{background:var(--ink);color:var(--bg);padding:12px 16px;font:500 14px var(--f-ui);box-shadow:4px 4px 0 var(--or)}
+footer{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;padding:22px 2px 36px;font-size:13px;color:var(--soft)}
+
+@media (max-width:1200px){
+  .grid-hero{grid-template-columns:minmax(0,1fr)}
+  .grid-hero>.hero{order:-1}
+  .grid-2{grid-template-columns:minmax(0,1fr)}
+  .opts{grid-template-columns:1fr 1fr}
+  .feed{grid-template-columns:repeat(3,1fr)}
+  .feed>div:nth-child(3n){border-right:0}
+  .feed>div:nth-child(-n+3){border-bottom:1px solid var(--rule)}
+  .steps{grid-template-columns:1fr 1fr}
+  .steps>div{border-bottom:1px solid var(--rule)}
+  .trow{grid-template-columns:160px minmax(0,1fr)}
+  .trow>div:last-child{grid-column:1 / -1;border-left:0;border-top:1px solid var(--rule)}
+  .docs{grid-template-columns:minmax(0,1fr)}
+  .toc{position:static}
+  .nets{grid-template-columns:1fr 1fr}
+  .net:nth-child(2n){border-right:0}
+  .net:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+  .kv5{grid-template-columns:repeat(3,1fr)}
+  .kv5>div:nth-child(3){border-right:0}
+  .kv5>div:nth-child(-n+3){border-bottom:1px solid var(--rule)}
+  .splitkeys{grid-template-columns:1fr 1fr}
+  .splitkeys>div:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+  .splitkeys>div:nth-child(2){border-right:0}
+}
+@media (max-width:1100px){
+  .nav{grid-template-columns:1fr auto}
+  .brand{border-right:0}
+  .tabs{grid-column:1 / -1;grid-row:2;display:flex;border-top:1px solid var(--rule)}
+  .tabs a{flex:1 0 94px}
+}
+@media (max-width:760px){
+  .hero-copy{grid-template-columns:minmax(0,1fr);padding:24px 20px 6px}
+  .map .hubt,.map .hubb{display:none}
+  .auc{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:700px){
+  .wrap{padding:10px}
+  .opts,.two,.nets{grid-template-columns:minmax(0,1fr)}
+  .net{border-right:0!important;border-bottom:1px solid var(--rule)}
+  .feed{grid-template-columns:1fr 1fr}
+  .feed>div{border-bottom:1px solid var(--rule)}
+  .feed>div:nth-child(2n){border-right:0}
+  .feed>div:nth-child(3n){border-right:1px solid var(--rule)}
+  .feed>div:nth-child(6n){border-right:0}
+  .steps{grid-template-columns:1fr}
+  .steps>div{border-right:0}
+  .kv5{grid-template-columns:1fr 1fr}
+  .kv5>div{border-right:1px solid var(--rule)!important;border-bottom:1px solid var(--rule)}
+  .kv5>div:nth-child(2n){border-right:0!important}
+  .splitkeys{grid-template-columns:1fr}
+  .splitkeys>div{border-right:0!important;border-bottom:1px solid var(--rule)}
+  .squares{grid-template-columns:repeat(25,1fr)}
+  .fly svg{display:none} .fly ol{display:block}
+  .big b{font-size:80px}
+  .kv2 b{font-size:20px}
+  .brand{padding:10px 12px;gap:8px}
+  .brand .art{width:58px}
+  .brand b{font-size:24px}
+  .walletcell{padding:10px 12px}
+  .walletcell .btn{padding:9px 10px;font-size:12.5px;gap:7px}
+  .trow{grid-template-columns:minmax(0,1fr)}
+  .trow>div+div{border-left:0;border-top:1px solid var(--rule)}
+  .trow .tbm{max-width:200px}
+  .lists{grid-template-columns:minmax(0,1fr)}
+  .lcard{grid-template-columns:100px minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  .map .bore{animation:none}
+  .btn:active:not([disabled]){transform:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top panel">
+    <div class="nav">
+      <a class="brand" href="#site" aria-label="Bore home"><span class="art" role="img" aria-label="Bore tunnel boring machine"></span><span><b>Bore</b><small>$BORE</small></span></a>
+      <nav class="tabs" id="tabs" aria-label="Sections"></nav>
+      <div class="walletcell">
+        <button class="btn or" id="walletBtn" data-act="wallet" aria-haspopup="true"><i class="dot"></i><span>Connect wallet</span></button>
+        <div class="menu panel" id="walletMenu" hidden></div>
+      </div>
+    </div>
+  </header>
+
+  <main id="view" tabindex="-1"></main>
+
+  <footer>
+    <span>Bore. Bore deeper. Build tunnels. Extract fees.</span>
+    <span>Machines, tunnels, $BORE and every coin launched here can go to zero. Nothing here is financial advice.</span>
+  </footer>
+</div>
+
+<div id="overlay"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ---------- logo ---------- */
+const LOGO = 'data:image/png;base64,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';
+document.head.insertAdjacentHTML('beforeend', `<style>.art{background-image:url(${LOGO})}</style>`);
+
+/* ---------- config ---------- */
+const DAY = 86400, HOUR = 3600;
+const CFG = {
+  RPC: 'https://api.mainnet-beta.solana.com', // swap for your own RPC (Helius, Triton…) when you deploy
+  X: 'https://x.com/BoreLiveSOL',
+  SUPPLY: 999, MINT0: 0.25, MINT1: 1.5,
+  OPER: 0.55, ROY: 0.15, BURN: 0.20, OPS: 0.10,
+  NET_CUT: 0.05, TR_BURN: 0.4, TR_MEMBERS: 0.4, TR_LAUNCH: 0.2, NET_LAUNCH_AT: 0.05,
+  RENT_OWNER: 0.90, RENT_BURN: 0.10, SALE_ROYALTY: 0.05,
+  BASE_RATE: 1 / 240,
+  PRICE0: 0.0000010, TOKEN_SUPPLY: 1e9,
+  START_T: 2 * DAY + 9 * HOUR,
+  OTHER_RATE: 4 / 1440
+};
+const TIERS = [
+  { name: 'Micro', cap: 1, unlock: 0, blurb: 'One active tunnel. A single cutter head working one narrative at a time.' },
+  { name: 'Industrial', cap: 3, unlock: 30000, blurb: 'Three tunnels at once. The workhorse of the network.' },
+  { name: 'Mega', cap: 5, unlock: 90000, blurb: 'Five tunnels at once, boring through several narratives in parallel.' },
+  { name: 'Hyperbore', cap: 10, unlock: 250000, blurb: 'Ten tunnels at once. The largest machine on the network.' }
+];
+const UP = {
+  speed: { name: 'Boring speed', max: 5, cost: l => 5000 * l, eff: '+25% boring rate per level' },
+  drill: { name: 'Drilling capacity', max: 5, cost: l => 6000 * l, eff: '+6% tunnel output per level' },
+  extra: { name: 'Simultaneous tunnels', max: 3, cost: l => 25000 * l, eff: '+1 tunnel open at once' }
+};
+const DURS = [{ h: 1, name: '1 hour', off: 0 }, { h: 24, name: '1 day', off: 0.10 }, { h: 168, name: '1 week', off: 0.25 }];
+const NARR = {
+  a: ['Capybara','Frog','Goose','Hamster','Penguin','Raccoon','Otter','Pigeon','Axolotl','Walrus','Lobster','Possum','Granite','Quartz','Basalt','Copper','Cobalt','Shale','Magma','Ember'],
+  b: ['Council','Summer','Army','Season','Parade','Gym','Choir','Union','Club','Rally','Vein','Seam','Lode','Core','Shaft','Drift','Gallery','Cavern','Ore','Bedrock'],
+  s: ['Mentions up {n}% in 6 hours','In the top 20 on pump.fun','A meme format spreading across 3 apps','{n} new wallets bought in the last hour','Early volume on a fresh pool','A wallet woke up after {n} days','Smart-money wallets moving in','A sticker pack that went viral overnight']
+};
+
+/* ---------- utils ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hash(n){ n = (n ^ 61) ^ (n >>> 16); n = n + (n << 3); n = n ^ (n >>> 4); n = Math.imul(n, 0x27d4eb2d); n = n ^ (n >>> 15); return n >>> 0; }
+function gauss(r = Math.random){ let u = 0, v = 0; while (!u) u = r(); while (!v) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+const pick = (arr, r = Math.random) => arr[Math.floor(r() * arr.length)];
+const fmtSol = x => { x = +x || 0; return x >= 100 ? x.toFixed(1) : x >= 1 ? x.toFixed(2) : x >= 0.01 ? x.toFixed(3) : x > 0 ? x.toFixed(4) : '0'; };
+const fmtTok = x => { x = +x || 0; if (x >= 1e9) return (x/1e9).toFixed(2) + 'B'; if (x >= 1e6) return (x/1e6).toFixed(x >= 1e7 ? 1 : 2) + 'M'; if (x >= 1e3) return (x/1e3).toFixed(x >= 1e4 ? 0 : 1) + 'k'; return Math.round(x) + ''; };
+const pad2 = n => String(n).padStart(2, '0');
+function ago(t){ const s = S.t - t; if (s < 60) return 'just now'; if (s < HOUR) return Math.floor(s / 60) + ' min ago'; if (s < DAY) return `${Math.floor(s / HOUR)} h ${Math.floor(s % HOUR / 60)} min ago`; return Math.floor(s / DAY) + ' d ago'; }
+function left(t){ const s = Math.max(0, t - S.t); if (s < HOUR) return Math.ceil(s / 60) + ' min'; if (s < DAY) return `${Math.floor(s / HOUR)} h ${Math.floor(s % HOUR / 60)} min`; return `${Math.floor(s / DAY)} d ${Math.floor(s % DAY / HOUR)} h`; }
+const short = a => a ? a.slice(0, 4) + '…' + a.slice(-4) : '';
+const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const randAddr = r => Array.from({ length: 44 }, () => B58[Math.floor(r() * 58)]).join('');
+const mintPrice = n => CFG.MINT0 + (CFG.MINT1 - CFG.MINT0) * (Math.min(n, CFG.SUPPLY) - 1) / (CFG.SUPPLY - 1);
+const price = () => CFG.PRICE0 * (1 + S.burned / CFG.TOKEN_SUPPLY * 40);
+const r50 = x => Math.max(50, Math.round(x / 50) * 50);
+const capOf = e => TIERS[e.tier].cap + (e.extra - 1);
+const remRoy = c => c.alive ? c.F * Math.exp(-(S.t - c.t0) / 60 / c.L) * CFG.ROY : 0;
+const tunnelValue = c => r50(remRoy(c) / price());
+
+function pix(rows){
+  const h = rows.length, w = rows[0].length; let r = '';
+  rows.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; else if (c === 'o') r += `<rect class="o" x="${x}" y="${y}" width="1" height="1"/>`; }));
+  return `<svg class="pix" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+}
+const ART = `<span class="art" aria-hidden="true"></span>`;
+const ICO = {
+  site: pix(['ooooooooo','.........','###.#####','....#....','.##.#.##.','....#....','#####.###']),
+  rent: pix(['.###.....','#...#....','#.o.#####','#...#.#.#','.###.....']),
+  tunnel: pix(['..#####..','.#.....#.','#..ooo..#','#.o...o.#','#.o...o.#','#########']),
+  net: pix(['o...o...o','.#..#..#.','..#.#.#..','...ooo...','..#.#.#..','.#..#..#.','o...o...o']),
+  mine: pix(['.#######.','#.......#','#....####','#....#o##','#....####','#.......#','.#######.']),
+  how: pix(['###...###','#o##.##o#','#..#.#..#','#.##.##.#','#..#.#..#','###.#.###']),
+  docs: pix(['######..','#....##.','#.oo..##','#......#','#.####.#','#......#','#.####.#','########']),
+  coin: pix(['..###..','.#ooo#.','#oo#oo#','#o###o#','#oo#oo#','.#ooo#.','..###..']),
+  scan: pix(['o.....o..','.o.....o.','..o..o..o','..o..o..o','.o.....o.','o.....o..']),
+  gavel: pix(['##.....','###....','.###...','..##.#.','...###.','....###','.....##'])
+};
+
+/* ---------- state ---------- */
+const KEY = 'bore-state-v1', KEYW = 'bore-wallet-v1';
+let S, tbmById = new Map(), coinById = new Map();
+function reindex(){ tbmById = new Map(S.tbm.map(e => [e.id, e])); coinById = new Map(S.coins.map(c => [c.id, c])); }
+function feedPush(x){ x.t = S.t; S.feed.unshift(x); if (S.feed.length > 60) S.feed.length = 60; }
+const hourly = e => e.rv / Math.max(6, Math.min(168, (S.t - e.t) / HOUR));
+const fair = (e, share) => r50(0.75 * share * Math.max(hourly(e), 0.0015 * Math.sqrt(capOf(e))) / price());
+const inAuction = e => S.auc.some(a => a.tbm === e.id);
+const opIsUser = e => e.rent ? e.rent.user : e.user;
+
+function addOther(r){
+  const n = S.tbm.length + 1; if (n > CFG.SUPPLY) return;
+  const fee = mintPrice(n), x = r(), tier = x < 0.5 ? 0 : x < 0.8 ? 1 : x < 0.95 ? 2 : 3;
+  const e = { id: n, owner: randAddr(r), tier, speed: 1 + Math.min(4, Math.floor(r() * r() * 5)), drill: 1 + Math.min(4, Math.floor(r() * r() * 5)), extra: 1 + (r() < 0.15 ? 1 : 0),
+    live: 0, count: 0, unclaimed: 0, rentUn: 0, own: 0, life: 0, rv: 0, j: [], user: false, list: null, rent: null, t: S.t };
+  if (r() < 0.2) e.list = { share: pick([0.5, 0.6, 0.7, 0.8], r), k: 0.8 + r() * 0.6, price: 0 };
+  let burnTok = TIERS[tier].unlock;
+  for (const k of ['speed','drill','extra']) for (let l = 1; l < e[k]; l++) burnTok += UP[k].cost(l);
+  S.burnSol += fee * 0.5; S.burned += fee * 0.5 / price() + burnTok; S.ops += fee * 0.5;
+  S.tbm.push(e); tbmById.set(e.id, e);
+  if (e.list) e.list.price = r50(fair(e, e.list.share) * e.list.k);
+}
+function narr(r = Math.random){
+  const a = pick(NARR.a, r), b = pick(NARR.b, r);
+  return { tick: (a.slice(0, 4) + b.slice(0, 1 + Math.floor(r() * 3))).toUpperCase(), desc: pick(NARR.s, r).replace('{n}', 20 + Math.floor(r() * 900)) };
+}
+function newCoin(base){
+  const c = Object.assign({ id: S.nextCoin++, t0: S.t, L: Math.exp(Math.log(120) + 0.9 * gauss()), fees: 0, roy: 0, royUn: 0, alive: true, grad: false, price: 0 }, base);
+  c.gradAt = c.F > 5 ? c.F * 0.3 : -1;
+  S.coins.push(c); coinById.set(c.id, c); S.ver++;
+  return c;
+}
+function bore(e){
+  const n = narr(), userOp = opIsUser(e);
+  const c = newCoin({ tbm: e.id, tick: n.tick, desc: n.desc, F: Math.exp(Math.log(0.08) + 1.3 * gauss()) * (1 + 0.06 * (e.drill - 1)), owner: userOp ? W.addr : randAddr(Math.random), user: userOp, net: null });
+  e.live++; e.count++; e.j.unshift(c.id); if (e.j.length > 64) e.j.length = 64;
+  if (!userOp) {
+    if (Math.random() < 0.5) connect(c, weightedNet());
+    if (Math.random() < 0.2) c.price = r50(tunnelValue(c) * (0.7 + Math.random() * 0.7));
+  }
+  feedPush({ k: 'launch', tbm: e.id, tick: c.tick, tier: e.tier });
+  if (userOp && S.speed <= 60) toast(`TBM #${e.id} finished a tunnel: $${c.tick}. The Tunnel NFT is yours.`);
+}
+function weightedNet(){ const tot = S.nets.reduce((a, n) => a + n.n + 4, 0); let x = Math.random() * tot; for (const n of S.nets) { x -= n.n + 4; if (x <= 0) return n.id; } return S.nets[0].id; }
+function connect(c, id){ c.net = id; const n = S.nets[id - 1]; n.n++; if (c.user) S.myNet[id] = (S.myNet[id] || 0) + 1; }
+function toNet(id, x){
+  const n = S.nets[id - 1];
+  n.inflow += x;
+  S.burned += x * CFG.TR_BURN / price(); n.burned += x * CFG.TR_BURN / price();
+  const members = x * CFG.TR_MEMBERS; n.paid += members;
+  if (S.myNet[id]) S.netUn[id] = (S.netUn[id] || 0) + members * S.myNet[id] / n.n;
+  n.fund += x * CFG.TR_LAUNCH;
+  if (n.fund >= CFG.NET_LAUNCH_AT) {
+    n.fund -= CFG.NET_LAUNCH_AT; const nn = narr();
+    newCoin({ tbm: 0, net: id, netCoin: true, tick: nn.tick, desc: nn.desc, F: Math.exp(Math.log(0.08) + 1.3 * gauss()), owner: null, user: false });
+    n.launches++; feedPush({ k: 'netlaunch', net: id, tick: nn.tick });
+  }
+}
+function pay(c, f){
+  c.fees += f;
+  S.burned += f * CFG.BURN / price(); S.ops += f * CFG.OPS;
+  if (c.netCoin) { toNet(c.net, f * (CFG.OPER + CFG.ROY)); return; }
+  let op = f * CFG.OPER;
+  if (c.net) { const cut = f * CFG.NET_CUT; op -= cut; toNet(c.net, cut); }
+  const roy = f * CFG.ROY; c.roy += roy; if (c.user) c.royUn += roy;
+  const e = tbmById.get(c.tbm);
+  if (e) { const renter = e.rent ? op * e.rent.share : 0; e.rentUn += renter; e.unclaimed += op - renter; e.own += op - renter; e.life += op; e.rv += op; }
+}
+function startRent(e, who, isUser, hours, cost, share){
+  e.rent = { who, user: isUser, until: S.t + hours * HOUR, share, hours }; e.rentUn = 0;
+  S.burned += cost * CFG.RENT_BURN;
+  if (e.user && !isUser) { S.wal.bor += cost * CFG.RENT_OWNER; toast(`TBM #${e.id} rented for ${hours === 1 ? '1 hour' : hours === 24 ? '1 day' : '1 week'}: +${fmtTok(cost * CFG.RENT_OWNER)} $BORE`); }
+  S.ver++;
+}
+function endRent(e){
+  if (e.rent.user && e.rentUn > 0) { S.wal.sol += e.rentUn; toast(`Rental of TBM #${e.id} ended. ${fmtSol(e.rentUn)} SOL settled to your wallet.`); }
+  e.rentUn = 0; e.rent = null; S.ver++;
+}
+function prune(){
+  const cut = S.t - 8 * HOUR;
+  S.coins = S.coins.filter(c => c.alive || c.grad || c.t0 > cut || c.user || tbmById.get(c.tbm)?.user);
+  coinById = new Map(S.coins.map(c => [c.id, c]));
+  for (const e of S.tbm) if (e.list && !e.user) e.list.price = r50(fair(e, e.list.share) * e.list.k);
+}
+function spawnAuction(){
+  const pool = S.tbm.filter(e => !e.user && !e.rent && !e.list && !inAuction(e)).sort((a, b) => hourly(b) - hourly(a)).slice(0, 10);
+  if (!pool.length) return;
+  const e = pick(pool), start = r50(fair(e, 0.7) * 24 * 0.55);
+  S.auc.push({ a: S.nextA++, tbm: e.id, bid: start, start, bidder: null, ends: S.t + (1.5 + Math.random() * 2.5) * HOUR, share: 0.7 });
+  S.ver++;
+}
+function step(dm){
+  const t0 = S.t; S.t += dm * 60;
+  if (S.tbm.length < CFG.SUPPLY && Math.random() < dm * CFG.OTHER_RATE) { addOther(Math.random); S.ver++; }
+  for (const e of S.tbm) {
+    if (e.rent && S.t >= e.rent.until) endRent(e);
+    if (e.list && !e.rent && !inAuction(e)) {
+      const a = Math.max(0.05, Math.min(3, fair(e, e.list.share) / e.list.price));
+      if (Math.random() < dm / 1100 * a) { const x = Math.random(), d = DURS[x < 0.5 ? 0 : x < 0.9 ? 1 : 2]; startRent(e, randAddr(Math.random), false, d.h, e.list.price * d.h * (1 - d.off), e.list.share); }
+    }
+    if (e.live < capOf(e) && Math.random() < dm * CFG.BASE_RATE * (1 + 0.25 * (e.speed - 1)) * Math.sqrt(capOf(e))) bore(e);
+  }
+  for (const c of S.coins) {
+    if (!c.alive) continue;
+    const a0 = Math.max(0, (t0 - c.t0) / 60), a1 = Math.max(0, (S.t - c.t0) / 60);
+    const f = c.F * (Math.exp(-a0 / c.L) - Math.exp(-a1 / c.L));
+    if (f > 0) pay(c, f);
+    if (!c.grad && c.gradAt > 0 && c.fees >= c.gradAt) { c.grad = true; S.ver++; }
+    if (a1 > 3 * c.L) { c.alive = false; c.price = 0; const e = tbmById.get(c.tbm); if (e) e.live = Math.max(0, e.live - 1); S.ver++; }
+    else if (c.price > 0 && Math.random() < dm / 300 * Math.max(0.05, Math.min(3, tunnelValue(c) * 1.1 / c.price))) {
+      S.burned += c.price * CFG.SALE_ROYALTY;
+      if (c.user) { S.wal.bor += c.price * (1 - CFG.SALE_ROYALTY); toast(`Tunnel $${c.tick} sold for ${fmtTok(c.price)} $BORE`); if (c.net && S.myNet[c.net]) S.myNet[c.net]--; }
+      c.user = false; c.royUn = 0; c.owner = randAddr(Math.random); c.price = 0; S.ver++;
+    }
+  }
+  const listed = S.coins.filter(c => c.price > 0 && !c.user);
+  if (listed.length > 10) listed.slice(0, listed.length - 10).forEach(c => c.price = 0);
+  const decay = Math.exp(-dm * 60 / (7 * DAY));
+  for (const e of S.tbm) e.rv *= decay;
+  for (const a of S.auc) {
+    if (S.t < a.ends && Math.random() < dm / 40) {
+      const nb = r50(Math.max(a.start, a.bid * (1.06 + Math.random() * 0.08)));
+      if (nb <= fair(tbmById.get(a.tbm), a.share) * 24 * 1.25) { if (a.bidder === 'you') { S.wal.bor += a.bid; toast(`You were outbid on TBM #${a.tbm}`); } a.bid = nb; a.bidder = randAddr(Math.random); S.ver++; }
+    }
+  }
+  for (const a of S.auc.filter(a => S.t >= a.ends)) {
+    const e = tbmById.get(a.tbm);
+    if (a.bidder && e && !e.rent) { startRent(e, a.bidder === 'you' ? W.addr : a.bidder, a.bidder === 'you', 24, a.bid, a.share); if (a.bidder === 'you') toast(`You won the auction for TBM #${e.id}. It’s yours to run for 24 hours.`); }
+    else if (a.bidder === 'you') S.wal.bor += a.bid;
+    S.auc = S.auc.filter(x => x !== a); S.ver++;
+  }
+  while (S.auc.length < 1) { const before = S.auc.length; spawnAuction(); if (S.auc.length === before) break; }
+  if (Math.floor(S.t / HOUR) !== Math.floor(t0 / HOUR)) prune();
+}
+function advance(minutes){ while (minutes > 0) { const d = Math.min(5, minutes); step(d); minutes -= d; } }
+function newWorld(){
+  S = { v: 1, t: CFG.START_T - 2 * DAY, speed: 60, tbm: [], coins: [], feed: [], auc: [], burned: 0, burnSol: 0, ops: 0, wal: { sol: 30, bor: 300000 }, nextCoin: 1, nextA: 1, ver: 0,
+    nets: [1,2,3,4].map(id => ({ id, n: 0, inflow: 0, burned: 0, paid: 0, fund: 0, launches: 0 })), myNet: {}, netUn: {} };
+  tbmById = new Map(); coinById = new Map();
+  const r = mulberry(41);
+  for (let i = 0; i < 38; i++) addOther(r);
+  advance(2 * 24 * 60);
+  S.feed = S.feed.slice(0, 40);
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function load(){
+  try { const raw = localStorage.getItem(KEY); if (raw) { const s = JSON.parse(raw); if (s && s.v === 1 && Array.isArray(s.tbm)) { S = s; reindex(); return; } } } catch (e) {}
+  newWorld();
+}
+
+/* ---------- wallet (Wallet Standard + injected providers, validated with @solana/web3.js) ---------- */
+const W = { list: [], addr: null, name: null, entry: null, kind: null, balance: null };
+const isMine = e => !!(e && e.user && W.addr && e.owner === W.addr);
+const isRenting = e => !!(e && e.rent && e.rent.user && W.addr && e.rent.who === W.addr);
+const myTun = c => !!(c && c.user && W.addr && c.owner === W.addr);
+function addWallet(x){ if (!W.list.some(w => w.name.toLowerCase() === x.name.toLowerCase())) W.list.push(x); }
+const wsApi = { register: (...ws) => { ws.forEach(w => { try { if (w.features && w.features['standard:connect'] && (w.chains || []).some(c => String(c).startsWith('solana:'))) addWallet({ name: w.name, icon: w.icon, kind: 'standard', w }); } catch (e) {} }); return () => {}; } };
+try {
+  window.addEventListener('wallet-standard:register-wallet', ev => { try { ev.detail(wsApi); } catch (e) {} });
+  window.dispatchEvent(new CustomEvent('wallet-standard:app-ready', { detail: wsApi }));
+} catch (e) {}
+function detectInjected(){
+  const c = [['Phantom', window.phantom && window.phantom.solana], ['Solflare', window.solflare], ['Backpack', window.backpack], ['Solana wallet', window.solana]];
+  for (const [n, p] of c) {
+    if (!p || typeof p.connect !== 'function') continue;
+    const name = p.isPhantom ? 'Phantom' : p.isSolflare ? 'Solflare' : n;
+    if (!W.list.some(w => w.name.toLowerCase().startsWith(name.toLowerCase()))) addWallet({ name, icon: null, kind: 'injected', p });
+  }
+}
+function validAddr(a){
+  try { if (window.solanaWeb3 && solanaWeb3.PublicKey) return new solanaWeb3.PublicKey(a).toBase58(); } catch (e) { return null; }
+  return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(a) ? a : null;
+}
+async function connectEntry(entry, silent){
+  let addr = null;
+  if (entry.kind === 'standard') {
+    const w = entry.w;
+    if (silent) { if (w.accounts && w.accounts.length) addr = w.accounts[0].address; else return false; }
+    else { const r = await w.features['standard:connect'].connect(); const acc = (r && r.accounts && r.accounts.length ? r.accounts : w.accounts)[0]; addr = acc && acc.address; }
+    try { w.features['standard:events'] && w.features['standard:events'].on('change', ({ accounts }) => { if (accounts && accounts.length) setWallet(accounts[0].address, entry); else clearWallet(); }); } catch (e) {}
+  } else {
+    const p = entry.p;
+    const r = await p.connect(silent ? { onlyIfTrusted: true } : undefined);
+    const pk = (r && r.publicKey) || p.publicKey; addr = pk && pk.toString();
+    try { p.on && p.on('accountChanged', pk => { if (pk) setWallet(pk.toString(), entry); else clearWallet(); }); } catch (e) {}
+  }
+  if (!addr) throw new Error('The wallet returned no account.');
+  setWallet(addr, entry);
+  return true;
+}
+function setWallet(addr, entry){
+  const ok = validAddr(addr);
+  if (!ok) { toast('That wallet returned an invalid Solana address.'); return; }
+  W.addr = ok; W.name = entry ? entry.name : 'Guest wallet'; W.entry = entry || null; W.kind = entry ? entry.kind : 'guest'; W.balance = null;
+  try { localStorage.setItem(KEYW, JSON.stringify({ name: W.name, kind: W.kind, addr: W.kind === 'guest' ? W.addr : null })); } catch (e) {}
+  for (const e of S.tbm) if (e.rent && e.rent.user) e.rent.who = W.addr;
+  for (const c of S.coins) if (c.user) c.owner = W.addr;
+  paintWallet(); S.ver++; render(true);
+  if (W.kind !== 'guest') fetchBalance();
+}
+async function fetchBalance(){
+  if (!window.solanaWeb3 || !W.addr) return;
+  try {
+    const conn = new solanaWeb3.Connection(CFG.RPC, 'confirmed');
+    const lamports = await Promise.race([conn.getBalance(new solanaWeb3.PublicKey(W.addr)), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 6000))]);
+    W.balance = lamports / solanaWeb3.LAMPORTS_PER_SOL;
+  } catch (e) { W.balance = 'unavailable'; }
+  paintWallet();
+}
+async function clearWallet(){
+  const e = W.entry;
+  try { if (e && e.kind === 'standard' && e.w.features['standard:disconnect']) await e.w.features['standard:disconnect'].disconnect(); if (e && e.kind === 'injected' && e.p.disconnect) await e.p.disconnect(); } catch (err) {}
+  Object.assign(W, { addr: null, name: null, entry: null, kind: null, balance: null });
+  try { localStorage.removeItem(KEYW); } catch (err) {}
+  $('#walletMenu').hidden = true; paintWallet(); S.ver++; render(true);
+}
+function paintWallet(){
+  const b = $('#walletBtn');
+  if (W.addr) { b.className = 'btn connected'; b.innerHTML = `<i class="dot"></i><span>${short(W.addr)}</span>`; b.setAttribute('aria-label', `Wallet ${W.addr}, open menu`); }
+  else { b.className = 'btn or'; b.innerHTML = `<i class="dot"></i><span>Connect wallet</span>`; b.setAttribute('aria-label', 'Connect wallet'); }
+  if (W.addr) {
+    const bal = W.kind === 'guest' ? fmtSol(S.wal.sol) + ' SOL' : W.balance == null ? 'Checking…' : W.balance === 'unavailable' ? 'Unavailable' : fmtSol(W.balance) + ' SOL';
+    $('#walletMenu').innerHTML = `<div class="rows"><div><label>Wallet</label><b>${esc(W.name)}</b></div><div><label>Address</label><b>${short(W.addr)}</b></div><div><label>Balance</label><b>${bal}</b></div><div><label>$BORE</label><b>${fmtTok(S.wal.bor)}</b></div></div>
+      <div class="mitems"><button data-act="copyAddr">Copy address</button>${W.kind !== 'guest' ? `<a href="https://solscan.io/account/${W.addr}" target="_blank" rel="noopener">View on Solscan</a>` : ''}<button data-act="disconnect">Disconnect</button></div>`;
+  }
+}
+function openWalletModal(){
+  detectInjected();
+  const items = W.list.map((w, i) => `<button class="wopt" data-act="pickWallet" data-i="${i}">${w.icon ? `<img src="${esc(w.icon)}" alt="">` : `<span class="ph-ico"></span>`}<span>${esc(w.name)}</span><em>Detected</em></button>`).join('');
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="wt">
+    <h2 class="ph" id="wt">${ICO.mine} Connect a Solana wallet <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="wlist">
+      ${items || `<p class="small" style="margin:0">No Solana wallet found in this browser. Install one, then reload this page.</p>
+        <a class="wopt" href="https://phantom.app/download" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Phantom</a>
+        <a class="wopt" href="https://solflare.com/download" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Solflare</a>
+        <a class="wopt" href="https://backpack.app/downloads" target="_blank" rel="noopener"><span class="ph-ico"></span>Get Backpack</a>`}
+      <button class="wopt" data-act="guestWallet"><span class="ph-ico" style="background:var(--or)"></span><span>Continue as guest</span></button>
+      <p class="small" style="margin:4px 0 0">Connecting shares your public address only.</p>
+    </div></section>`);
+}
+async function eagerConnect(){
+  let saved = null; try { saved = JSON.parse(localStorage.getItem(KEYW) || 'null'); } catch (e) {}
+  if (!saved) return;
+  if (saved.kind === 'guest' && saved.addr) { setWallet(saved.addr, null); return; }
+  detectInjected();
+  const entry = W.list.find(w => w.name === saved.name);
+  if (entry) { try { await connectEntry(entry, true); } catch (e) {} }
+}
+
+/* ---------- pictures ---------- */
+function tbmHTML(e){
+  const live = e.live > 0;
+  return `<span class="tbm${live ? '' : ' idle'}" role="img" aria-label="TBM #${e.id}, ${TIERS[e.tier].name}, ${e.live} tunnels open">${ART}<span class="tb">${[0,1,2,3].map(i => `<i class="${i <= e.tier ? 'on' : ''}"></i>`).join('')}</span><span class="lv">${'<i></i>'.repeat(Math.min(10, e.live))}</span></span>`;
+}
+function tunnelGlyph(c){
+  const h = hash(c.id * 31 + 5), y = 9 + h % 9, x = 8 + (h >>> 8) % 30, cls = c.alive ? 't-live' : 't-dead';
+  return `<svg class="tg" viewBox="0 0 60 22" shape-rendering="crispEdges" aria-hidden="true"><rect x="0" y="0" width="60" height="22" class="s1"/><rect x="0" y="12" width="60" height="10" class="s2"/>${c.net ? `<rect x="4" y="0" width="2" height="22" class="shaft"/><rect x="6" y="${y}" width="${x}" height="2" class="${cls}"/>` : `<rect x="${x}" y="0" width="2" height="${y}" class="${cls}"/>`}${c.net ? '' : `<rect x="${x}" y="${y}" width="${54 - x}" height="2" class="${cls}"/>`}${c.net ? `<rect x="${6 + x}" y="${y}" width="${48 - x}" height="2" class="${cls}"/>` : ''}<rect x="54" y="${y - 1}" width="4" height="4" class="${cls}"/></svg>`;
+}
+function mapSVG(){
+  const Wd = 320, H = 160, G = 26, B1 = 56, B2 = 104, HUB = [118, 172, 226, 280];
+  let s = `<svg class="map" viewBox="0 0 ${Wd} ${H}" shape-rendering="crispEdges" role="img" aria-label="The underground tunnel network. Each orange line is a live tunnel, which is a coin a TBM launched. Tunnels connected to a network branch off its shaft.">`;
+  s += `<rect x="0" y="${G}" width="${Wd}" height="${B1 - G}" class="s1"/><rect x="0" y="${B1}" width="${Wd}" height="${B2 - B1}" class="s2"/><rect x="0" y="${B2}" width="${Wd}" height="${H - B2}" class="s3"/>`;
+  const r = mulberry(5);
+  for (let x = 0; x < Wd; x += 4) { const j = Math.floor(r() * 3); if (j) s += `<rect x="${x}" y="${B1}" width="4" height="${j}" class="s1"/>`; const k = Math.floor(r() * 3); if (k) s += `<rect x="${x}" y="${B2}" width="4" height="${k}" class="s2"/>`; }
+  for (let i = 0; i < 70; i++) s += `<rect x="${Math.floor(r() * Wd)}" y="${G + 3 + Math.floor(r() * (H - G - 4))}" width="1" height="1" class="t-dead" opacity=".5"/>`;
+  s += `<rect x="0" y="${G}" width="${Wd}" height="1.4" class="grass"/>`;
+  s += `<rect x="70" y="44" width="${Wd - 70}" height="3" class="trunk"/>`;
+  HUB.forEach((x, i) => { s += `<rect x="${x}" y="${G - 8}" width="3" height="${H - G + 8}" class="shaft"/><rect class="hubb" x="${x - 7}" y="${G - 17}" width="17" height="8"/><text class="hubt" x="${x + 1.5}" y="${G - 11.6}" text-anchor="middle">NET ${i + 1}</text>`; });
+  const list = S.coins.slice(-90);
+  for (const c of list) {
+    const h = hash(c.id * 11 + 2), y = G + 6 + h % (H - G - 10), cls = c.alive ? 't-live' : 't-dead', title = `<title>$${esc(c.tick)}${c.netCoin ? ', network launch' : ', TBM #' + c.tbm}${c.net ? ', network ' + c.net : ''} (${c.grad ? 'graduated' : c.alive ? 'live' : 'quiet'})</title>`;
+    let cx;
+    if (c.net) { const hx = HUB[c.net - 1], dx = 6 + (h >>> 8) % 22, dir = (h >>> 16) & 1 ? 1 : -1; cx = hx + 1.5 + dir * dx; const x0 = Math.min(hx + 1.5, cx), w = Math.abs(cx - hx - 1.5); s += `<rect class="${cls}" x="${x0}" y="${y}" width="${w}" height="1">${title}</rect>`; }
+    else { cx = 74 + (h >>> 8) % 236; s += `<rect class="${cls}" x="${cx}" y="${G}" width="1" height="${y - G}" opacity=".8">${title}</rect>`; }
+    const sz = c.grad ? 4 : c.alive ? 3 : 2;
+    s += `<rect class="${c.grad ? 'c-grad' : cls}" x="${(cx - sz / 2).toFixed(1)}" y="${(y - sz / 2 + .5).toFixed(1)}" width="${sz}" height="${sz}">${title}</rect>`;
+  }
+  s += `<g class="bore"><image href="${LOGO}" x="4" y="27" width="72" height="39.6" style="image-rendering:pixelated"/></g>`;
+  return s + '</svg>';
+}
+
+/* ---------- views ---------- */
+const TABS = [['site','Dig site',ICO.site],['deploy','Deploy',ART],['rentals','Rentals',ICO.rent],['tunnels','Tunnels',ICO.tunnel],['networks','Networks',ICO.net],['tbms','My TBMs',ICO.mine],['how','How it works',ICO.how],['docs','Docs',ICO.docs]];
+let tab = 'site';
+const D = { tier: 0 };
+const M = { tier: 'all', sort: 'value', dur: 1 };
+const T = { sort: 'value' };
+const LST = { id: 0, share: 0.7, mult: 1 };
+const TL = { id: 0, mult: 1 };
+
+const myTbm = () => W.addr ? S.tbm.filter(isMine) : [];
+const myRent = () => W.addr ? S.tbm.filter(isRenting) : [];
+const myTunnels = () => W.addr ? S.coins.filter(myTun) : [];
+const netUnTotal = () => Object.values(S.netUn).reduce((a, b) => a + b, 0);
+const unTotal = () => myTbm().reduce((a, e) => a + e.unclaimed, 0) + myRent().reduce((a, e) => a + e.rentUn, 0) + myTunnels().reduce((a, c) => a + c.royUn, 0) + (W.addr ? netUnTotal() : 0);
+const LIVE = {
+  burned: () => fmtTok(S.burned),
+  live: () => String(S.coins.filter(c => c.alive).length),
+  un: id => fmtSol(tbmById.get(+id)?.unclaimed) + ' SOL',
+  own: id => fmtSol(tbmById.get(+id)?.own) + ' SOL',
+  rentUn: id => fmtSol(tbmById.get(+id)?.rentUn) + ' SOL',
+  roy: id => fmtSol(coinById.get(+id)?.royUn) + ' SOL',
+  netUn: id => fmtSol(S.netUn[id] || 0) + ' SOL',
+  myUn: () => fmtSol(unTotal()) + ' SOL',
+  claimAll: () => 'Claim all · ' + fmtSol(unTotal()) + ' SOL',
+  ago: t => ago(+t),
+  left: t => left(+t)
+};
+function kv(label, val, k){ return `<div><label>${label}</label><b${k ? ` data-k="${k}"` : ''}>${val}</b></div>`; }
+
+let latestSnap = null, latestAt = 0;
+function vSite(){
+  const n = S.tbm.length, nn = Math.min(n + 1, CFG.SUPPLY), on = Math.round(n / CFG.SUPPLY * 50);
+  const nowR = performance.now();
+  if (!latestSnap || nowR - latestAt > 30000) { latestSnap = S.feed.filter(f => f.k === 'launch').slice(0, 6); latestAt = nowR; }
+  const conn = S.nets.reduce((a, x) => a + x.n, 0);
+  return `<div class="grid-hero"><div class="col">
+  <section class="panel">
+    <h2 class="ph">${ICO.site} Status <small>the dig right now</small></h2>
+    <div class="pad">
+      <label>TBMs deployed</label>
+      <div class="big"><b>${n}</b><span>/ ${CFG.SUPPLY}</span></div>
+      <div class="ticks" aria-hidden="true">${Array.from({ length: 50 }, (_, i) => `<i class="${i < on ? 'on' : ''}${i === on - 1 ? ' last' : ''}"></i>`).join('')}</div>
+      <div class="kv4">
+        ${kv('Deploy price', n >= CFG.SUPPLY ? 'Sold out' : fmtSol(mintPrice(nn)) + ' SOL')}
+        ${kv('Live tunnels', S.coins.filter(c => c.alive).length, 'live')}
+        ${kv('Connected tunnels', conn)}
+        ${kv('$BORE burned', fmtTok(S.burned), 'burned')}
+      </div>
+      <button class="btn or wide" data-go="deploy">Deploy a TBM</button>
+    </div>
+  </section>
+  <section class="panel">
+    <h2 class="ph">${ICO.coin} $BORE <small>token</small></h2>
+    <div class="kv2"><div><label>Project</label><b>Bore</b></div><div><label>Ticker</label><b>$BORE</b></div></div>
+    ${CFG.X ? `<div class="btnrow"><a class="btn" href="${esc(CFG.X)}" target="_blank" rel="noopener">Follow @BoreLiveSOL on X</a></div>` : ''}
+  </section>
+  </div>
+  <section class="panel hero">
+    <h2 class="ph">${ICO.net} The underground <small>every tunnel bored in the last hours</small></h2>
+    <div class="hero-copy">
+      <h1>Bore deeper. Build tunnels. <em>Extract fees.</em></h1>
+      <p>Each TBM is an NFT that tunnels through Solana for narratives and launches coins on pump.fun. Every tunnel is a Tunnel NFT that earns royalties, and connected tunnels feed a shared network treasury.</p>
+    </div>
+    <div class="mapwrap">${mapSVG()}</div>
+    <div class="legend">
+      <span><i style="background:var(--or)"></i>Live tunnel</span>
+      <span><i style="background:#FFFFFF;outline:1.5px solid var(--or)"></i>Graduated to PumpSwap</span>
+      <span><i style="background:var(--dead)"></i>Gone quiet</span>
+      <span><i style="background:var(--shaft);width:4px;height:12px"></i>Network shaft</span>
+    </div>
+  </section>
+  </div>
+  <section class="panel mt">
+    <h2 class="ph">${ICO.docs} Latest tunnels <small>coins the TBMs just launched</small><button class="link end" data-go="tunnels">Open tunnels</button></h2>
+    ${latestSnap.length ? `<div class="feed">${latestSnap.map(f => { const e = tbmById.get(f.tbm); return `<div>${e ? tbmHTML(e) : ''}<b>$${esc(f.tick)}</b><p>TBM #${f.tbm} · ${TIERS[f.tier].name}</p><span class="ago" data-k="ago:${f.t}">${ago(f.t)}</span></div>`; }).join('')}</div>`
+      : `<div class="empty">${ART}<span>No tunnels yet.</span></div>`}
+  </section>
+  <section class="panel mt">
+    <h2 class="ph">${ICO.how} How it works <small>five steps</small><button class="link end" data-go="how">All the rules</button></h2>
+    ${stepsHTML()}
+  </section>`;
+}
+function stepsHTML(){
+  const st = [
+    [ART, 'Deploy a TBM', 'Buy a tunnel boring machine NFT. Its tier sets how many tunnels it runs at once.'],
+    [ICO.scan, 'Start boring', 'AI agents analyse on-chain activity, social trends and new token narratives.'],
+    [ICO.tunnel, 'Excavate tunnels', 'Each tunnel is a new coin launched on pump.fun, and a Tunnel NFT for its operator.'],
+    [ICO.coin, 'Collect fees', 'Creator fees flow back to the TBM, with royalties to whoever holds the tunnel.'],
+    [ICO.net, 'Upgrade and connect', 'Spend $BORE on upgrades, and connect tunnels into networks that share a treasury.']
+  ];
+  return `<div class="steps">${st.map((x, i) => `<div>${x[0]}<span class="n">${pad2(i + 1)}</span><h3>${x[1]}</h3><p>${x[2]}</p></div>`).join('')}</div>`;
+}
+
+function vDeploy(){
+  const n = S.tbm.length + 1, fee = mintPrice(n), tr = TIERS[D.tier], soldOut = n > CFG.SUPPLY;
+  const shortSol = S.wal.sol < fee, shortBor = S.wal.bor < tr.unlock;
+  const can = W.addr && !soldOut && !shortSol && !shortBor;
+  return `<div class="grid-2"><div class="col">
+  <section class="panel step">
+    <h2 class="ph"><b>Step 1</b> <small>choose a machine</small><span class="tag or end">Now</span></h2>
+    <div class="pad"><h3>How big a machine?</h3>
+      <p>The tier sets how many tunnels the TBM can run at once. You can upgrade later.</p>
+      <div class="opts">${TIERS.map((d, i) => `<button class="opt" data-act="pickTier" data-i="${i}" aria-pressed="${D.tier === i}"><span class="bores" aria-hidden="true">${'<i></i>'.repeat(d.cap)}</span><b>${d.name} TBM</b><span>${d.cap === 1 ? 'One active tunnel' : d.cap + ' simultaneous tunnels'}</span>
+        <dl><dt>Unlock</dt><dd>${d.unlock ? fmtTok(d.unlock) + ' $BORE' : 'Free'}</dd><dt>Tunnels</dt><dd>${d.cap}</dd></dl></button>`).join('')}</div>
+      <p class="note">${tr.blurb} Bigger machines open more tunnels, but every tunnel is its own bet. More tunnels don’t guarantee more revenue.</p>
+    </div>
+  </section>
+  <section class="panel step">
+    <h2 class="ph"><b>Step 2</b> <small>${fmtSol(fee)} SOL to deploy</small></h2>
+    <div class="pad"><h3>${soldOut ? 'All 999 TBMs are deployed' : `Deploy TBM #${n}`}</h3>
+      <p>${soldOut ? 'Machines now change hands on Tensor and Magic Eden, or you can rent one.' : 'The deploy price goes half to $BORE buy and burn, half to operations. The tier unlock is burned. Every tunnel it bores is minted to you as a Tunnel NFT.'}</p>
+      ${!W.addr ? `<button class="btn dark" data-act="wallet">Connect wallet to deploy</button>`
+        : `<button class="btn dark" data-act="deploy" ${can ? '' : 'disabled'}>Deploy TBM #${n}</button>
+           ${shortSol ? `<p class="warn" style="margin:12px 0 0">Not enough SOL in your wallet.</p>` : ''}
+           ${shortBor ? `<p class="warn" style="margin:12px 0 0">You need ${fmtTok(tr.unlock)} $BORE for a ${tr.name} TBM. Swap some from My TBMs.</p>` : ''}`}
+    </div>
+  </section></div>
+  <aside class="col">
+    <section class="panel"><h2 class="ph">${ART} You get <small>after step 2</small></h2>
+      <div class="youget"><div class="frame">${tbmHTML({ id: n, tier: D.tier, live: tr.cap })}</div><div><b>#${Math.min(n, CFG.SUPPLY)}</b><span>${tr.name} TBM<br>${tr.cap === 1 ? 'One tunnel' : tr.cap + ' tunnels'} at once</span></div></div>
+    </section>
+    <section class="panel"><h2 class="ph">${ICO.coin} Summary <small>what moves</small></h2>
+      <div class="rows">
+        ${kv('Deploy price', fmtSol(fee) + ' SOL')}
+        ${kv('Tier unlock (burned)', tr.unlock ? fmtTok(tr.unlock) + ' $BORE' : 'Free')}
+        ${kv('Operator share', '55% of fees')}
+        ${kv('Tunnel royalty', '15% to its holder')}
+        ${kv('Wallet SOL', fmtSol(S.wal.sol) + ' SOL')}
+        ${kv('Wallet $BORE', fmtTok(S.wal.bor))}
+      </div>
+    </section>
+  </aside></div>`;
+}
+
+function vRentals(){
+  const d = DURS[M.dur];
+  let list = S.tbm.filter(e => e.list);
+  if (M.tier !== 'all') list = list.filter(e => e.tier === +M.tier);
+  const sorters = { value: (a, b) => (b.list.share * hourly(b) / b.list.price) - (a.list.share * hourly(a) / a.list.price), price: (a, b) => a.list.price - b.list.price, rev: (a, b) => hourly(b) - hourly(a), share: (a, b) => b.list.share - a.list.share };
+  list.sort((a, b) => (!!a.rent - !!b.rent) || sorters[M.sort](a, b));
+  const segb = (key, val, label) => `<button class="chip" data-act="m" data-key="${key}" data-val="${val}" aria-pressed="${String(M[key]) === String(val)}">${label}</button>`;
+  const auctions = S.auc.map(a => {
+    const e = tbmById.get(a.tbm), mine = a.bidder === 'you', next = a.bidder ? r50(a.bid * 1.1) : a.bid;
+    return `<div class="auc">${tbmHTML(e)}<div><h4>TBM #${e.id}</h4><span class="small">${TIERS[e.tier].name} · ${capOf(e)} tunnels · ${fmtSol(hourly(e))} SOL/h</span>
+      <label style="margin-top:12px">${mine ? 'Your bid is winning' : a.bidder ? 'Top bid' : 'Starting bid'}</label><div class="bid">${fmtTok(a.bid)} <small>$BORE</small></div>
+      <p class="small" style="margin:0">24 h rental, renter keeps ${Math.round(a.share * 100)}% of the operator share. Ends in <span data-k="left:${a.ends}">${left(a.ends)}</span>.</p></div>
+      <div>${!W.addr ? `<button class="btn sm" data-act="wallet">Connect wallet to bid</button>` : mine ? `<button class="btn sm" disabled>You’re the top bidder</button>` : `<button class="btn or" data-act="bid" data-a="${a.a}" ${S.wal.bor < next ? 'disabled' : ''}>Bid ${fmtTok(next)}</button>`}</div>
+    </div>`; }).join('');
+  return `<section class="panel"><h2 class="ph">${ICO.gavel} Rental auction <small>the best-earning machine goes to the highest bidder</small></h2>
+    ${auctions || `<div class="empty">${ART}<span>No auction running right now.</span></div>`}
+  </section>
+  <section class="panel mt"><h2 class="ph">${ICO.rent} TBMs for rent <small>${list.length} listed</small></h2>
+    <div class="filters">
+      <div class="seg"><span>Rent for</span>${DURS.map((x, i) => segb('dur', i, x.name + (x.off ? ` (−${x.off * 100}%)` : ''))).join('')}</div>
+      <div class="seg"><span>Tier</span>${segb('tier','all','All')}${TIERS.map((f, i) => segb('tier', String(i), f.name)).join('')}</div>
+      <div class="seg"><span>Sort</span>${segb('sort','value','Best value')}${segb('sort','rev','Revenue')}${segb('sort','price','Price')}${segb('sort','share','Renter share')}</div>
+    </div>
+    ${list.length ? `<div class="lists">${list.map(e => { const cost = e.list.price * d.h * (1 - d.off), mine = isMine(e);
+      return `<div class="lcard">${tbmHTML(e)}<div><h4>#${e.id}${mine ? '<span class="tag or">Yours</span>' : ''}</h4>
+        <dl><dt>Tier</dt><dd>${TIERS[e.tier].name}</dd><dt>Tunnels</dt><dd>${capOf(e)} at once</dd><dt>Revenue</dt><dd>${fmtSol(hourly(e))} SOL/h</dd><dt>Renter share</dt><dd>${Math.round(e.list.share * 100)}%</dd><dt>Price</dt><dd>${fmtTok(e.list.price)} /h</dd></dl>
+        ${e.rent ? `<button class="btn sm" disabled>Rented, back in ${left(e.rent.until)}</button>` : mine ? `<button class="btn sm" data-go="tbms">Manage listing</button>`
+          : !W.addr ? `<button class="btn sm" data-act="wallet">Connect wallet</button>`
+          : `<button class="btn sm or" data-act="rent" data-id="${e.id}" ${S.wal.bor < cost ? 'disabled' : ''}>Rent ${d.name} · ${fmtTok(cost)}</button>`}
+      </div></div>`; }).join('')}</div>` : `<div class="empty">${ART}<span>No machines listed at this tier.</span></div>`}
+  </section>`;
+}
+
+function tunnelCard(c, mine){
+  const status = c.grad ? 'Graduated' : c.alive ? 'Live' : 'Quiet';
+  return `<div class="tcard"><h4>$${esc(c.tick)}${mine && c.price ? '<span class="tag ghost">Listed</span>' : ''}</h4>${tunnelGlyph(c)}
+    <dl><dt>Bored by</dt><dd>${c.netCoin ? 'Network ' + c.net : 'TBM #' + c.tbm}</dd><dt>Status</dt><dd>${status}</dd><dt>Network</dt><dd>${c.net ? 'Network ' + c.net : 'Not connected'}</dd><dt>Coin fees so far</dt><dd>${fmtSol(c.fees)} SOL</dd>
+    ${mine ? `<dt>Your royalties</dt><dd data-k="roy:${c.id}">${LIVE.roy(c.id)}</dd>` : ''}${c.alive ? `<dt>Est. royalty left</dt><dd>${fmtSol(remRoy(c))} SOL</dd>` : ''}${c.price ? `<dt>Price</dt><dd>${fmtTok(c.price)} $BORE</dd>` : ''}</dl>
+    <div class="btns">${mine
+      ? `${!c.net && c.alive ? `<button class="btn sm or" data-act="netOpen" data-c="${c.id}">Connect</button>` : ''}${c.alive ? (c.price ? `<button class="btn sm" data-act="tunUnlist" data-c="${c.id}">Unlist</button>` : `<button class="btn sm" data-act="tunListOpen" data-c="${c.id}">Sell</button>`) : ''}`
+      : !W.addr ? `<button class="btn sm" data-act="wallet">Connect wallet</button>` : `<button class="btn sm or" data-act="tunBuy" data-c="${c.id}" ${S.wal.bor < c.price ? 'disabled' : ''}>Buy · ${fmtTok(c.price)}</button>`}</div>
+  </div>`;
+}
+function vTunnels(){
+  const mine = myTunnels().sort((a, b) => (b.alive - a.alive) || (b.t0 - a.t0));
+  let list = S.coins.filter(c => c.price > 0 && !c.user && c.alive);
+  const sorters = { value: (a, b) => tunnelValue(b) / b.price - tunnelValue(a) / a.price, price: (a, b) => a.price - b.price, roy: (a, b) => remRoy(b) - remRoy(a) };
+  list.sort(sorters[T.sort]);
+  const segb = (key, val, label) => `<button class="chip" data-act="t" data-key="${key}" data-val="${val}" aria-pressed="${T[key] === val}">${label}</button>`;
+  return `<section class="panel"><h2 class="ph">${ICO.tunnel} Your tunnels <small>Tunnel NFTs earn 15% of their coin’s creator fees</small></h2>
+    ${!W.addr ? `<div class="empty">${ART}<span>Connect a wallet to see your Tunnel NFTs.</span><button class="btn or" data-act="wallet">Connect wallet</button></div>`
+      : mine.length ? `<div class="tcards">${mine.slice(0, 40).map(c => tunnelCard(c, true)).join('')}</div>`
+      : `<div class="empty">${ART}<span>No tunnels yet. Every tunnel a TBM you run bores is minted to you, or buy one below.</span></div>`}
+  </section>
+  <section class="panel mt"><h2 class="ph">${ICO.coin} Tunnel market <small>${list.length} for sale</small></h2>
+    <div class="filters"><div class="seg"><span>Sort</span>${segb('sort','value','Best value')}${segb('sort','roy','Royalty left')}${segb('sort','price','Price')}</div></div>
+    ${list.length ? `<div class="tcards">${list.map(c => tunnelCard(c, false)).join('')}</div>` : `<div class="empty">${ART}<span>No tunnels for sale right now.</span></div>`}
+  </section>`;
+}
+
+function vNetworks(){
+  return `<section class="panel"><h2 class="ph">${ICO.net} Tunnel networks <small>connected tunnels share a treasury</small></h2>
+    <div class="pbody"><p>Connect a tunnel to a network and 5% of its coin’s creator fees go to that network’s treasury. The treasury burns 40% as $BORE buybacks, pays 40% to members by connected tunnel, and puts 20% toward network-funded launches. Connections are permanent.</p></div>
+    <div class="nets" style="border-top:1px solid var(--rule)">${S.nets.map(n => `<div class="net"><h3>Net ${n.id}</h3>
+      <div class="stats">
+        <div><label>Connected tunnels</label><b>${n.n}</b></div>
+        <div><label>Paid to members</label><b>${fmtSol(n.paid)} SOL</b></div>
+        <div><label>$BORE burned</label><b>${fmtTok(n.burned)}</b></div>
+        <div><label>Network launches</label><b>${n.launches}</b></div>
+        ${W.addr ? `<div><label>Your tunnels</label><b>${S.myNet[n.id] || 0}</b></div><div><label>Your payouts</label><b data-k="netUn:${n.id}">${LIVE.netUn(n.id)}</b></div>` : ''}
+      </div></div>`).join('')}</div>
+  </section>
+  <section class="panel mt"><h2 class="ph">${ICO.tunnel} Connect a tunnel <small>pick one of your live tunnels</small></h2>
+    ${!W.addr ? `<div class="empty">${ART}<span>Connect a wallet to link your tunnels into a network.</span><button class="btn or" data-act="wallet">Connect wallet</button></div>`
+      : (() => { const free = myTunnels().filter(c => c.alive && !c.net); return free.length ? `<div class="tcards">${free.map(c => tunnelCard(c, true)).join('')}</div>` : `<div class="empty">${ART}<span>No unconnected live tunnels. New tunnels from your TBMs appear here.</span></div>`; })()}
+  </section>`;
+}
+
+function upRow(e, k){
+  const u = UP[k], l = e[k], max = l >= u.max, cost = u.cost(l);
+  return `<div class="up"><b>${u.name}<span class="pips" aria-label="Level ${l} of ${u.max}">${Array.from({ length: u.max }, (_, i) => `<i class="${i < l ? 'on' : ''}"></i>`).join('')}</span></b>
+    <small>${max ? 'Maxed out' : u.eff}</small>
+    <button class="btn sm" data-act="upgrade" data-id="${e.id}" data-k="${k}" ${max || S.wal.bor < cost ? 'disabled' : ''}>${max ? 'Maxed' : 'Upgrade · ' + fmtTok(cost)}</button></div>`;
+}
+function vTbms(){
+  if (!W.addr) return `<section class="panel"><h2 class="ph">${ICO.mine} My TBMs</h2>
+    <div class="empty">${ART}<span>Connect a wallet to see the machines you own or rent and claim their fees.</span><button class="btn or" data-act="wallet">Connect wallet</button></div></section>`;
+  const mine = myTbm(), rented = myRent();
+  return `<section class="panel"><h2 class="ph">${ICO.mine} My TBMs <small>fees and royalties wait until you claim them</small></h2>
+    <div class="kv5">
+      <div><label>TBMs owned</label><b>${mine.length}</b></div>
+      <div><label>TBMs rented</label><b>${rented.length}</b></div>
+      <div><label>Tunnel NFTs</label><b>${myTunnels().length}</b></div>
+      <div><label>Unclaimed</label><b class="g" data-k="myUn">${LIVE.myUn()}</b></div>
+      <div><label>$BORE</label><b>${fmtTok(S.wal.bor)}</b></div>
+    </div>
+    <div class="actions">
+      <button class="btn or" data-act="claimAll" data-k="claimAll">${LIVE.claimAll()}</button>
+      <button class="btn" data-go="deploy">Deploy a TBM</button>
+      <button class="btn" data-go="tunnels">Your tunnels</button>
+      <button class="btn" data-act="buyBor" ${S.wal.sol < 1 ? 'disabled' : ''}>Swap 1 SOL for $BORE</button>
+    </div>
+  </section>
+  ${rented.length ? `<section class="panel mt"><h2 class="ph">${ICO.rent} Rented by you <small>tunnels bored during your rental are yours</small></h2>
+    ${rented.map(e => `<div class="trow"><div>${tbmHTML(e)}</div>
+      <div><h3>#${e.id} <span class="tag ghost">${TIERS[e.tier].name}</span></h3>
+        <div class="stats">
+          <div><label>Time left</label><b data-k="left:${e.rent.until}">${left(e.rent.until)}</b></div>
+          <div><label>You keep</label><b>${Math.round(e.rent.share * 100)}%</b></div>
+          <div><label>Your earnings</label><b data-k="rentUn:${e.id}">${LIVE.rentUn(e.id)}</b></div>
+          <div><label>Tunnels open</label><b>${e.live} / ${capOf(e)}</b></div>
+        </div>
+        <div class="btns"><button class="btn sm" data-act="openTbm" data-id="${e.id}">Journal</button></div>
+      </div>
+      <div><p class="small" style="margin:0">Your share of the operator fees settles to your wallet when the rental ends. Owner ${short(e.owner)} keeps the other ${100 - Math.round(e.rent.share * 100)}%.</p></div></div>`).join('')}
+  </section>` : ''}
+  <section class="panel mt"><h2 class="ph">${ART} TBMs you own <small>${mine.length}</small></h2>
+    ${mine.length ? mine.map(e => `<div class="trow">
+      <div>${tbmHTML(e)}</div>
+      <div><h3>#${e.id} <span class="tag ghost">${TIERS[e.tier].name}</span></h3>
+        <div class="stats">
+          <div><label>Tunnels open</label><b>${e.live} / ${capOf(e)}</b></div>
+          <div><label>Tunnels bored</label><b>${e.count}</b></div>
+          <div><label>Unclaimed</label><b data-k="un:${e.id}">${LIVE.un(e.id)}</b></div>
+          <div><label>Owner earnings</label><b data-k="own:${e.id}">${LIVE.own(e.id)}</b></div>
+        </div>
+        <div class="btns"><button class="btn sm or" data-act="claim" data-id="${e.id}">Claim</button><button class="btn sm" data-act="openTbm" data-id="${e.id}">Journal</button></div>
+      </div>
+      <div>
+        <div class="rentbox">${e.rent ? `<b>Rented out</b><p>To ${short(e.rent.who)} for ${left(e.rent.until)} more. They keep ${Math.round(e.rent.share * 100)}% of the operator share; the rest still comes to you.</p>`
+          : e.list ? `<b>Listed for rent</b><p>${fmtTok(e.list.price)} $BORE an hour, renter keeps ${Math.round(e.list.share * 100)}%. Payments settle to your wallet automatically.</p><div class="btns"><button class="btn sm" data-act="listOpen" data-id="${e.id}">Edit</button><button class="btn sm" data-act="unlist" data-id="${e.id}">Unlist</button></div>`
+          : `<b>Not listed</b><p>Rent it out by the hour, day or week and earn $BORE without running it.</p><button class="btn sm or" data-act="listOpen" data-id="${e.id}">List for rent</button>`}</div>
+        ${upRow(e, 'speed')}${upRow(e, 'drill')}${upRow(e, 'extra')}
+        ${e.tier < 3 ? (() => { const c = TIERS[e.tier + 1].unlock - TIERS[e.tier].unlock; return `<div class="up"><b>Upgrade to ${TIERS[e.tier + 1].name}</b><small>${TIERS[e.tier + 1].cap} simultaneous tunnels. No guarantee it earns more.</small><button class="btn sm" data-act="tierUp" data-id="${e.id}" ${S.wal.bor < c ? 'disabled' : ''}>Unlock · ${fmtTok(c)}</button></div>`; })() : `<div class="up"><b>Hyperbore</b><small>This machine is at the top tier.</small></div>`}
+      </div></div>`).join('')
+      : `<div class="empty">${ART}<span>None yet. Deploy one and it lands here.</span><button class="btn sm or" data-go="deploy">Deploy a TBM</button></div>`}
+  </section>`;
+}
+function listModal(id){
+  const e = tbmById.get(+id); if (!isMine(e)) return;
+  if (LST.id !== e.id) { LST.id = e.id; LST.share = e.list ? e.list.share : 0.7; LST.mult = 1; }
+  const p = r50(fair(e, LST.share) * LST.mult);
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="lt">
+    <h2 class="ph" id="lt">${ICO.rent} List TBM #${e.id} for rent <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="pad">
+      <label>Renter keeps</label>
+      <div class="seg" style="margin-bottom:16px">${[0.5,0.6,0.7,0.8].map(s => `<button class="chip" data-act="lsShare" data-v="${s}" aria-pressed="${LST.share === s}">${s * 100}%</button>`).join('')}</div>
+      <label>Hourly price</label>
+      <div class="seg" style="margin-bottom:16px">${[[0.8,'Fill fast'],[1,'Suggested'],[1.3,'Premium']].map(([m, t]) => `<button class="chip" data-act="lsMult" data-v="${m}" aria-pressed="${LST.mult === m}">${t}</button>`).join('')}</div>
+      <div class="rows" style="border:1px solid var(--rule);margin-bottom:16px">
+        ${kv('Price per hour', fmtTok(p) + ' $BORE')}
+        ${kv('Per day / week', `${fmtTok(p * 24 * 0.9)} / ${fmtTok(p * 168 * 0.75)}`)}
+        ${kv('You receive', '90% of each payment')}
+        ${kv('Burned', '10% of each payment')}
+      </div>
+      <p class="small" style="margin:0 0 16px">The suggested price is based on this machine’s recent revenue. Demand isn’t guaranteed: a TBM can sit unrented.</p>
+      <button class="btn or wide" data-act="listSave" data-id="${e.id}" data-p="${p}">${e.list ? 'Update listing' : 'List TBM #' + e.id}</button>
+    </div></section>`);
+}
+function tunListModal(id){
+  const c = coinById.get(+id); if (!myTun(c)) return;
+  if (TL.id !== c.id) { TL.id = c.id; TL.mult = 1; }
+  const p = r50(tunnelValue(c) * TL.mult);
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="tl">
+    <h2 class="ph" id="tl">${ICO.tunnel} Sell tunnel $${esc(c.tick)} <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="pad">
+      <p class="small" style="margin:0 0 14px">The buyer gets this tunnel’s future royalties: 15% of its coin’s creator fees. Royalties already earned stay with you.</p>
+      <label>Price</label>
+      <div class="seg" style="margin-bottom:16px">${[[0.8,'Sell fast'],[1,'Suggested'],[1.3,'Premium']].map(([m, t]) => `<button class="chip" data-act="tlMult" data-v="${m}" aria-pressed="${TL.mult === m}">${t}</button>`).join('')}</div>
+      <div class="rows" style="border:1px solid var(--rule);margin-bottom:16px">
+        ${kv('Price', fmtTok(p) + ' $BORE')}
+        ${kv('You receive', fmtTok(p * (1 - CFG.SALE_ROYALTY)) + ' $BORE')}
+        ${kv('Sale royalty (burned)', '5%')}
+      </div>
+      <button class="btn or wide" data-act="tunListSave" data-c="${c.id}" data-p="${p}">List $${esc(c.tick)}</button>
+    </div></section>`);
+}
+function netModal(id){
+  const c = coinById.get(+id); if (!myTun(c) || c.net) return;
+  modal(`<section class="panel modal" role="dialog" aria-modal="true" aria-labelledby="nt">
+    <h2 class="ph" id="nt">${ICO.net} Connect $${esc(c.tick)} to a network <button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="pad">
+      <p class="small" style="margin:0 0 14px">5% of this coin’s creator fees will go to the network treasury, and you’ll earn a share of the network’s member payouts for each tunnel you connect. Connections are permanent.</p>
+      <div class="wlist" style="padding:0">${S.nets.map(n => `<button class="wopt" data-act="netPick" data-c="${c.id}" data-n="${n.id}"><span>Network ${n.id}</span><em>${n.n} tunnels · ${fmtSol(n.paid)} SOL paid</em></button>`).join('')}</div>
+    </div></section>`);
+}
+
+function flywheel(){
+  const L = ['More TBMs deployed','More tunnels excavated','More tokens launched','More creator fees','More demand for machines','More $BORE spent','More $BORE burned'];
+  const cx = 380, cy = 180, rx = 290, ry = 135, n = L.length;
+  let s = `<svg viewBox="0 0 760 360" role="img" aria-label="The $BORE flywheel"><ellipse class="ringe" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`;
+  L.forEach((_, i) => { const a = (i + 0.5) / n * 2 * Math.PI - Math.PI / 2, x = cx + rx * Math.cos(a), y = cy + ry * Math.sin(a), rot = Math.atan2(ry * Math.cos(a), -rx * Math.sin(a)) * 180 / Math.PI; s += `<path class="arr" d="M -7 -6 L 7 0 L -7 6 Z" transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot.toFixed(1)})"/>`; });
+  L.forEach((t, i) => { const a = i / n * 2 * Math.PI - Math.PI / 2, x = cx + rx * Math.cos(a), y = cy + ry * Math.sin(a); s += `<g class="node${i === 6 ? ' hot' : ''}"><rect x="${(x - 96).toFixed(1)}" y="${(y - 19).toFixed(1)}" width="192" height="38"/><text x="${x.toFixed(1)}" y="${(y + 5).toFixed(1)}" text-anchor="middle">${t}</text></g>`; });
+  return s + `</svg><ol>${L.map(t => `<li>${t}</li>`).join('')}</ol>`;
+}
+function vHow(){
+  const sq = Array.from({ length: 100 }, (_, i) => `<i class="${i < 55 ? 'sq-a' : i < 70 ? 'sq-r' : i < 90 ? 'sq-b' : 'sq-c'}"></i>`).join('');
+  return `<section class="panel"><h2 class="ph">${ICO.how} How it works <small>machines bore tunnels, tunnels launch coins</small></h2>${stepsHTML()}</section>
+  <section class="panel mt"><h2 class="ph">${ICO.coin} Where every creator fee goes <small>100 squares, one per percent</small></h2>
+    <div class="split"><div class="squares" aria-hidden="true">${sq}</div></div>
+    <div class="splitkeys">
+      <div><span class="k"><i class="sq-a"></i>TBM operator</span><b>55%</b><p>Whoever runs the machine. Renters and owners split this at the listed share.</p></div>
+      <div><span class="k"><i class="sq-r"></i>Tunnel royalty</span><b>15%</b><p>To whoever holds the Tunnel NFT, forever.</p></div>
+      <div><span class="k"><i class="sq-b"></i>Buy and burn</span><b>20%</b><p>Buys $BORE on the market and burns it.</p></div>
+      <div><span class="k"><i class="sq-c"></i>Operations</span><b>10%</b><p>Pays for the AI agents, data and the keeper.</p></div>
+    </div>
+    <p class="note" style="margin:0 22px 22px">For a tunnel connected to a network, 5 points of the operator share go to the network treasury instead.</p>
+  </section>
+  <div class="two mt">
+    <section class="panel"><h2 class="ph">${ICO.net} Tunnel networks <small>tunnel expansion</small></h2>
+      <div class="pbody"><p>Owners connect tunnels into underground networks. Each connected tunnel sends 5% of its coin’s creator fees to the network treasury.</p>
+      <p>The treasury burns 40% as $BORE buybacks, pays 40% to members by connected tunnel, and saves 20% to fund network launches, whose fees flow back into the treasury. A bigger network has more sources, but revenue is never guaranteed.</p></div>
+    </section>
+    <section class="panel"><h2 class="ph">${ICO.rent} Rentals and tunnel trading</h2>
+      <div class="pbody"><p>Owners rent TBMs by the hour, day or week for $BORE and set how much of the operator share the renter keeps. 90% of each payment goes to the owner and 10% is burned. Tunnels bored during a rental belong to the renter.</p>
+      <p>Every Tunnel NFT can be sold. The buyer takes its future royalties; a 5% sale royalty is burned.</p></div>
+    </section>
+  </div>
+  <section class="panel mt"><h2 class="ph">${ICO.scan} The flywheel <small>why machines, tunnels and rentals feed demand</small></h2><div class="fly">${flywheel()}</div></section>
+  <div class="two mt">
+    <section class="panel"><h2 class="ph">${ART} TBM tiers</h2>
+      <div class="tw"><table><thead><tr><th>Machine</th><th>Capability</th><th class="r">Unlock</th></tr></thead><tbody>
+      ${TIERS.map(d => `<tr><td><b>${d.name} TBM</b></td><td>${d.cap === 1 ? 'One active tunnel' : d.cap + ' simultaneous tunnels'}</td><td class="r">${d.unlock ? fmtTok(d.unlock) : 'Free'}</td></tr>`).join('')}
+      </tbody></table></div>
+    </section>
+    <section class="panel"><h2 class="ph">${ICO.coin} Upgrades <small>paid in $BORE, all burned</small></h2>
+      <div class="tw"><table><thead><tr><th>Upgrade</th><th>Effect</th><th class="r">Levels</th><th class="r">Cost</th></tr></thead><tbody>
+      <tr><td><b>Boring speed</b></td><td>+25% boring rate</td><td class="r">5</td><td class="r">5k × level</td></tr>
+      <tr><td><b>Drilling capacity</b></td><td>+6% tunnel output</td><td class="r">5</td><td class="r">6k × level</td></tr>
+      <tr><td><b>Simultaneous tunnels</b></td><td>+1 tunnel open at once</td><td class="r">3</td><td class="r">25k × level</td></tr>
+      </tbody></table></div>
+    </section>
+  </div>`;
+}
+
+const DOCS = [
+  ['overview','Overview', () => `<p>Bore is a Solana launchpad where the launcher is a machine. Each <strong>TBM</strong> (tunnel boring machine) is an NFT. AI agents point it at emerging narratives; each tunnel it completes is a coin launched on pump.fun with the TBM as creator, and a <strong>Tunnel NFT</strong> minted to whoever is running the machine.</p>
+    <p>TBMs and tunnels both trade. Machines can be rented out, tunnels earn royalties, and tunnels can be connected into networks that share a treasury.</p>`],
+  ['deploying','Deploying', () => `<p>Choose a tier and pay the deploy price in SOL. It rises evenly from 0.25 SOL for #1 to 1.5 SOL for #999: <code>0.25 + 1.25 × (n − 1) / 998</code>. Half buys and burns $BORE, half funds operations. Tier unlocks are paid in $BORE and burned.</p>
+    <div class="tw"><table><thead><tr><th>TBM</th><th class="r">Deploy price</th></tr></thead><tbody>${[1,250,500,750,999].map(n => `<tr><td>#${n}</td><td class="r">${mintPrice(n).toFixed(3)} SOL</td></tr>`).join('')}</tbody></table></div>`],
+  ['tiers','TBM tiers', () => `<div class="tw"><table><thead><tr><th>Machine</th><th>Capability</th><th class="r">Unlock</th></tr></thead><tbody>${TIERS.map(d => `<tr><td><strong>${d.name} TBM</strong></td><td>${d.blurb}</td><td class="r">${d.unlock ? fmtTok(d.unlock) : 'Free'}</td></tr>`).join('')}</tbody></table></div>
+    <p>Larger machines open more tunnels at once and bore more often. Each tunnel is its own bet, so more tunnels widen exposure without guaranteeing revenue.</p>`],
+  ['tunnels','Tunnel NFTs', () => `<p>Every completed tunnel is a Tunnel NFT tied to its coin. Whoever holds it receives a <strong>15% royalty</strong> on that coin’s creator fees for as long as the coin trades. Royalties wait on the tunnel until claimed.</p>
+    <p>Tunnels can be sold on the tunnel market. The buyer takes future royalties; royalties already earned stay with the seller. Each sale burns a 5% royalty.</p>
+    <h4>Launch rules</h4>
+    <ul><li>No real people’s names or likeness, and no implied endorsement.</li><li>No existing brands, and no ticker that is already live on pump.fun.</li><li>No promises of returns.</li><li>Every description says which machine bored the tunnel.</li></ul>`],
+  ['networks','Tunnel networks', () => `<p>Holders can connect a live tunnel to one of the networks. The connection is permanent. A connected tunnel sends 5% of its coin’s creator fees to the network treasury, taken from the operator share.</p>
+    <div class="tw"><table><thead><tr><th>Treasury use</th><th class="r">Share</th></tr></thead><tbody><tr><td>$BORE buyback and burn</td><td class="r">40%</td></tr><tr><td>Payouts to members, by connected tunnel</td><td class="r">40%</td></tr><tr><td>Fund for network launches</td><td class="r">20%</td></tr></tbody></table></div>
+    <p>When the launch fund reaches ${CFG.NET_LAUNCH_AT} SOL, the network launches a coin of its own; its operator and royalty shares flow back into the treasury.</p>`],
+  ['fees','Fees', () => `<p>pump.fun pays each coin’s creator fees to its TBM’s address, on the bonding curve and after graduation to PumpSwap. A keeper collects them and the program splits them:</p>
+    <div class="tw"><table><thead><tr><th>To</th><th class="r">Share</th></tr></thead><tbody><tr><td>The TBM’s operator</td><td class="r">55%</td></tr><tr><td>The Tunnel NFT holder</td><td class="r">15%</td></tr><tr><td>$BORE buy and burn</td><td class="r">20%</td></tr><tr><td>Operations</td><td class="r">10%</td></tr></tbody></table></div>`],
+  ['rentals','Rentals', () => `<p>Owners list TBMs by the hour, day or week, priced in $BORE. A day is 10% cheaper per hour, a week 25% cheaper. The owner sets how much of the operator share the renter keeps: 50% to 80%. Tunnels bored during a rental are minted to the renter.</p>
+    <p>Each payment settles when the rental starts: 90% to the owner, 10% burned. When it ends, the renter’s share of fees settles to their wallet automatically. The best-earning machines go to a 24-hour rental auction.</p>`],
+  ['upgrades','Upgrades', () => `<p><strong>Boring speed</strong> raises the boring rate by 25% a level, up to five. <strong>Drilling capacity</strong> lifts tunnel output by 6% a level, up to five. <strong>Simultaneous tunnels</strong> adds one open tunnel per level, up to two extra. All are paid in $BORE and burned.</p>`],
+  ['token','$BORE', () => `<p>$BORE is the pad’s token, launched on pump.fun. It pays for rentals, tunnels, upgrades and tier unlocks. 20% of every coin’s creator fees, half of every deploy, 10% of every rental, 5% of every tunnel sale and 40% of every network treasury buy it back or burn it.</p>`],
+  ['faq','FAQ', () => [
+      ['Who is the creator of the coins?','The TBM. Its address is set as the coin’s creator on pump.fun, and the fee split is locked in the same transaction.'],
+      ['What does a Tunnel NFT earn?','15% of its coin’s creator fees for as long as the coin trades. Most coins go quiet within days.'],
+      ['Should I connect my tunnels?','It’s a trade-off: 5% of the coin’s fees go to the network, and in return you share in the network’s payouts. It can pay more or less than it costs.'],
+      ['Does a bigger TBM earn more?','It opens more tunnels, so it has more chances. It also costs more, and more tunnels don’t guarantee more revenue.'],
+      ['What happens when I sell my TBM?','Its journal, unclaimed fees and any active listing go with it. Tunnel NFTs you hold stay yours.']
+    ].map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join('')],
+  ['risks','Risks', () => `<ul><li>Most coins on pump.fun stop trading within days. A machine whose tunnels are quiet earns nothing.</li>
+    <li>Tunnel royalties end when a coin goes quiet. Network payouts depend on other members’ tunnels.</li>
+    <li>Rental demand isn’t guaranteed. A rented machine can earn less than the rent paid.</li>
+    <li>A TBM’s market price can fall far below what was paid to deploy it.</li>
+    <li>pump.fun can change its fee rates or creator fee program at any time.</li>
+    <li>Smart contracts and autonomous agents can have bugs even after testing.</li></ul>
+    <p class="small">TBMs, tunnels, $BORE and every coin launched here can go to zero. Nothing on this site is financial advice; only put in what you can afford to lose.</p>`]
+];
+function vDocs(){
+  return `<div class="docs"><nav class="panel toc" aria-label="Docs contents"><h2 class="ph">${ICO.docs} Docs <small>contents</small></h2>
+    <ol>${DOCS.map((d, i) => `<li><button data-act="docjump" data-id="${d[0]}"><span>${pad2(i + 1)}</span>${d[1]}</button></li>`).join('')}</ol></nav>
+    <div class="col">${DOCS.map(d => `<section class="panel doc" id="doc-${d[0]}"><h2 class="ph">${d[1]}</h2><div class="body">${d[2]()}</div></section>`).join('')}</div></div>`;
+}
+function tbmModal(id){
+  const e = tbmById.get(+id); if (!e) return;
+  const coins = e.j.map(i => coinById.get(i)).filter(Boolean);
+  modal(`<section class="panel modal wide" role="dialog" aria-modal="true" aria-labelledby="rt">
+    <h2 class="ph" id="rt">${ART} TBM #${e.id} <small>${TIERS[e.tier].name}${isMine(e) ? ', yours' : isRenting(e) ? ', rented by you' : ''}</small><button class="x" data-act="close" aria-label="Close">×</button></h2>
+    <div class="youget"><div class="frame">${tbmHTML(e)}</div>
+      <div class="stats" style="flex:1">
+        <div><label>Owner</label><b>${isMine(e) ? 'You' : short(e.owner)}</b></div>
+        <div><label>Tunnels bored</label><b>${e.count}</b></div>
+        <div><label>Operator revenue</label><b>${fmtSol(e.life)} SOL</b></div>
+        <div><label>Upgrades</label><b>Speed ${e.speed}, drill ${e.drill}, +${e.extra - 1} tunnels</b></div>
+      </div></div>
+    <h2 class="ph" style="border-top:1px solid var(--rule)">${ICO.docs} Journal <small>recent tunnels</small></h2>
+    ${coins.length ? `<div class="tw"><table><thead><tr><th>Tunnel</th><th>Signal</th><th>Network</th><th>Status</th><th class="r">Fees</th></tr></thead><tbody>
+      ${coins.slice(0, 40).map(c => `<tr><td><b>$${esc(c.tick)}</b></td><td><span class="small">${esc(c.desc)}</span></td><td>${c.net ? 'Net ' + c.net : '—'}</td><td>${c.grad ? 'Graduated' : c.alive ? 'Live' : 'Quiet'}</td><td class="r">${fmtSol(c.fees)} SOL</td></tr>`).join('')}
+    </tbody></table></div>` : `<div class="empty">${ART}<span>No tunnels yet. It’s boring.</span></div>`}
+  </section>`);
+}
+
+/* ---------- render ---------- */
+let lastVer = -1, lastTab = '', lastRender = 0;
+const VIEWS = { site: vSite, deploy: vDeploy, rentals: vRentals, tunnels: vTunnels, networks: vNetworks, tbms: vTbms, how: vHow, docs: vDocs };
+function render(force){
+  const now = performance.now();
+  const dynamic = !(tab === 'how' || tab === 'docs');
+  if (!force && tab === lastTab && (!dynamic || S.ver === lastVer || now - lastRender < 1500)) return;
+  lastVer = S.ver; lastTab = tab; lastRender = now;
+  const y = window.scrollY;
+  $('#view').innerHTML = VIEWS[tab]();
+  window.scrollTo(0, y);
+}
+function paintTabs(){ $('#tabs').innerHTML = TABS.map(([k, label, icon], i) => `<a href="#${k}"${tab === k ? ' aria-current="page"' : ''}>${icon}<span>${label}</span><em>${i + 1}</em></a>`).join(''); }
+function updateLive(){ document.querySelectorAll('[data-k]').forEach(el => { const [k, a] = el.dataset.k.split(':'); const f = LIVE[k]; if (!f) return; const v = f(a); if (el.textContent !== v) el.textContent = v; }); }
+function route(){ const h = location.hash.replace('#', ''); tab = VIEWS[h] ? h : 'site'; paintTabs(); render(true); updateLive(); }
+
+/* ---------- overlays ---------- */
+let lastFocus = null;
+function modal(html){ if (!$('#overlay').innerHTML) lastFocus = document.activeElement; $('#overlay').innerHTML = `<div class="scrim" data-act="scrim">${html}</div>`; const f = $('#overlay').querySelector('[aria-pressed="true"],button,a'); f && f.focus(); }
+function closeModal(){ $('#overlay').innerHTML = ''; LST.id = 0; TL.id = 0; lastFocus && lastFocus.focus && lastFocus.focus(); }
+function toast(msg){ const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; const box = $('#toasts'); box.appendChild(t); while (box.children.length > 3) box.firstChild.remove(); setTimeout(() => t.remove(), 3800); }
+
+/* ---------- actions ---------- */
+function doDeploy(){
+  const n = S.tbm.length + 1; if (!W.addr || n > CFG.SUPPLY) return;
+  const fee = mintPrice(n), tr = TIERS[D.tier];
+  if (S.wal.sol < fee || S.wal.bor < tr.unlock) return;
+  S.wal.sol -= fee; S.wal.bor -= tr.unlock;
+  S.burnSol += fee * 0.5; S.burned += fee * 0.5 / price() + tr.unlock; S.ops += fee * 0.5;
+  const e = { id: n, owner: W.addr, tier: D.tier, speed: 1, drill: 1, extra: 1, live: 0, count: 0, unclaimed: 0, rentUn: 0, own: 0, life: 0, rv: 0, j: [], user: true, list: null, rent: null, t: S.t };
+  S.tbm.push(e); tbmById.set(e.id, e); S.ver++; save();
+  toast(`TBM #${n} deployed. It starts boring now.`);
+  location.hash = '#tbms';
+}
+function claimAll(){
+  let v = 0;
+  for (const e of myTbm()) { v += e.unclaimed; e.unclaimed = 0; }
+  for (const e of myRent()) { v += e.rentUn; e.rentUn = 0; }
+  for (const c of myTunnels()) { v += c.royUn; c.royUn = 0; }
+  for (const k in S.netUn) { v += S.netUn[k]; S.netUn[k] = 0; }
+  S.wal.sol += v; return v;
+}
+const after = () => { S.ver++; render(true); updateLive(); };
+
+document.addEventListener('click', async ev => {
+  const go = ev.target.closest('[data-go]');
+  if (go) { if ($('#overlay').innerHTML) closeModal(); location.hash = '#' + go.dataset.go; return; }
+  const a = ev.target.closest('[data-act]');
+  if (!a) { if (!ev.target.closest('.walletcell')) $('#walletMenu').hidden = true; return; }
+  const act = a.dataset.act;
+  if (act === 'scrim') { if (ev.target === a) closeModal(); return; }
+  switch (act) {
+    case 'close': closeModal(); break;
+    case 'wallet':
+      if (W.addr && a.id === 'walletBtn') { const m = $('#walletMenu'); paintWallet(); m.hidden = !m.hidden; }
+      else openWalletModal();
+      break;
+    case 'pickWallet': {
+      const entry = W.list[+a.dataset.i];
+      a.disabled = true; const em = a.querySelector('em'); if (em) em.textContent = 'Approve in wallet…';
+      try { await connectEntry(entry, false); closeModal(); toast(`Connected ${short(W.addr)}`); }
+      catch (err) { a.disabled = false; if (em) em.textContent = 'Detected'; toast(err && err.message && /reject|denied|cancel/i.test(err.message) ? 'Connection request was declined in the wallet.' : 'Couldn’t connect. Unlock the wallet and try again.'); }
+      break; }
+    case 'guestWallet': setWallet(randAddr(Math.random), null); closeModal(); toast('Connected as guest'); break;
+    case 'disconnect': clearWallet(); toast('Wallet disconnected'); break;
+    case 'copyAddr': try { await navigator.clipboard.writeText(W.addr); toast('Address copied'); } catch (e) { toast(W.addr); } break;
+    case 'pickTier': D.tier = +a.dataset.i; render(true); break;
+    case 'deploy': doDeploy(); break;
+    case 'm': M[a.dataset.key] = a.dataset.key === 'dur' ? +a.dataset.val : a.dataset.val; render(true); break;
+    case 't': T[a.dataset.key] = a.dataset.val; render(true); break;
+    case 'openTbm': tbmModal(a.dataset.id); break;
+    case 'claim': { const e = tbmById.get(+a.dataset.id); if (!isMine(e)) break; const v = e.unclaimed; S.wal.sol += v; e.unclaimed = 0; toast(v > 0 ? `Claimed ${fmtSol(v)} SOL` : 'Nothing to claim yet'); after(); break; }
+    case 'claimAll': { const v = claimAll(); toast(v > 0 ? `Claimed ${fmtSol(v)} SOL` : 'Nothing to claim yet'); after(); break; }
+    case 'buyBor': if (S.wal.sol >= 1) { const t = 1 / price(); S.wal.sol -= 1; S.wal.bor += t; toast(`Swapped 1 SOL for ${fmtTok(t)} $BORE`); after(); } break;
+    case 'upgrade': { const e = tbmById.get(+a.dataset.id), k = a.dataset.k; if (!isMine(e) || e[k] >= UP[k].max) break; const c = UP[k].cost(e[k]); if (S.wal.bor < c) break; S.wal.bor -= c; S.burned += c; e[k]++; toast(`${UP[k].name} is now level ${e[k]}. ${fmtTok(c)} $BORE burned.`); after(); break; }
+    case 'tierUp': { const e = tbmById.get(+a.dataset.id); if (!isMine(e) || e.tier >= 3) break; const c = TIERS[e.tier + 1].unlock - TIERS[e.tier].unlock; if (S.wal.bor < c) break; S.wal.bor -= c; S.burned += c; e.tier++; toast(`TBM #${e.id} is now a ${TIERS[e.tier].name} TBM. ${fmtTok(c)} $BORE burned.`); after(); break; }
+    case 'listOpen': LST.id = 0; listModal(a.dataset.id); break;
+    case 'lsShare': LST.share = +a.dataset.v; listModal(LST.id); break;
+    case 'lsMult': LST.mult = +a.dataset.v; listModal(LST.id); break;
+    case 'listSave': { const e = tbmById.get(+a.dataset.id); if (!isMine(e)) break; e.list = { share: LST.share, price: +a.dataset.p, k: LST.mult }; closeModal(); toast(`TBM #${e.id} listed at ${fmtTok(e.list.price)} $BORE an hour`); after(); break; }
+    case 'unlist': { const e = tbmById.get(+a.dataset.id); if (!isMine(e)) break; e.list = null; toast(`TBM #${e.id} unlisted`); after(); break; }
+    case 'rent': {
+      const e = tbmById.get(+a.dataset.id), d = DURS[M.dur]; if (!W.addr || !e || !e.list || e.rent || isMine(e) || inAuction(e)) break;
+      const cost = e.list.price * d.h * (1 - d.off); if (S.wal.bor < cost) break;
+      S.wal.bor -= cost; startRent(e, W.addr, true, d.h, cost, e.list.share);
+      toast(`You’re running TBM #${e.id} for ${d.name}. You keep ${Math.round(e.list.share * 100)}% of the operator share.`); location.hash = '#tbms'; after(); break; }
+    case 'bid': {
+      const au = S.auc.find(x => x.a === +a.dataset.a); if (!au || !W.addr || au.bidder === 'you') break;
+      const next = au.bidder ? r50(au.bid * 1.1) : au.bid; if (S.wal.bor < next) break;
+      S.wal.bor -= next; au.bid = next; au.bidder = 'you'; toast(`You bid ${fmtTok(next)} $BORE on TBM #${au.tbm}`); after(); break; }
+    case 'tunBuy': {
+      const c = coinById.get(+a.dataset.c); if (!c || c.user || !c.price || !W.addr || S.wal.bor < c.price) break;
+      S.wal.bor -= c.price; S.burned += c.price * CFG.SALE_ROYALTY; c.user = true; c.owner = W.addr; c.royUn = 0; c.price = 0;
+      if (c.net) S.myNet[c.net] = (S.myNet[c.net] || 0) + 1;
+      toast(`You bought tunnel $${c.tick}. Its royalties now come to you.`); after(); break; }
+    case 'tunListOpen': TL.id = 0; tunListModal(a.dataset.c); break;
+    case 'tlMult': TL.mult = +a.dataset.v; tunListModal(TL.id); break;
+    case 'tunListSave': { const c = coinById.get(+a.dataset.c); if (!myTun(c)) break; c.price = +a.dataset.p; closeModal(); toast(`Tunnel $${c.tick} listed for ${fmtTok(c.price)} $BORE`); after(); break; }
+    case 'tunUnlist': { const c = coinById.get(+a.dataset.c); if (!myTun(c)) break; c.price = 0; toast(`Tunnel $${c.tick} unlisted`); after(); break; }
+    case 'netOpen': netModal(a.dataset.c); break;
+    case 'netPick': { const c = coinById.get(+a.dataset.c); if (!myTun(c) || c.net) break; connect(c, +a.dataset.n); closeModal(); toast(`Tunnel $${c.tick} connected to network ${c.net}`); after(); break; }
+    case 'docjump': { const el = document.getElementById('doc-' + a.dataset.id); el && el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); break; }
+  }
+  if (act !== 'wallet' && !a.closest('#walletMenu')) $('#walletMenu').hidden = true;
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('#overlay').innerHTML) closeModal(); $('#walletMenu').hidden = true; } });
+window.addEventListener('hashchange', route);
+
+/* ---------- boot ---------- */
+load();
+S.speed = 60;
+route();
+paintWallet();
+setTimeout(eagerConnect, 500);
+let lastTick = performance.now(), lastSave = 0;
+setInterval(() => {
+  const now = performance.now(), dt = Math.min(2, (now - lastTick) / 1000); lastTick = now;
+  if (S.speed > 0) advance(S.speed * dt / 60);
+  updateLive(); render(false);
+  if (now - lastSave > 5000) { save(); lastSave = now; }
+}, 250);
+window.addEventListener('pagehide', save);
+</script>
+</body>
+</html>
